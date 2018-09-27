@@ -11,10 +11,9 @@ use Mix.Config
 config :td_se, TdSeWeb.Endpoint,
   secret_key_base: "bbia29JeljAxzYeb8If4wXVoC+ETCjfNAwijzzC5ajuDF3ysPA/91ktNOGm0YyaA"
 
-# Configure your database
-config :td_se, TdSe.Repo,
-  adapter: Ecto.Adapters.Postgres,
-  username: "postgres",
-  password: "postgres",
-  database: "td_se_prod",
-  pool_size: 15
+config :td_se, :elasticsearch,
+  search_service: TdSe.Search,
+  es_host: "${ES_HOST}",
+  es_port: "${ES_PORT}",
+  type_name: "doc"
+

@@ -36,11 +36,8 @@ config :logger, :console, format: "[$level] $message\n"
 # in production as building large stacktraces may be expensive.
 config :phoenix, :stacktrace_depth, 20
 
-# Configure your database
-config :td_se, TdSe.Repo,
-  adapter: Ecto.Adapters.Postgres,
-  username: "postgres",
-  password: "postgres",
-  database: "td_se_dev",
-  hostname: "localhost",
-  pool_size: 10
+config :td_se, :elasticsearch,
+  search_service: TdSe.Search,
+  es_host: "localhost",
+  es_port: 9200,
+  type_name: "doc"
