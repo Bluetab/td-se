@@ -11,6 +11,12 @@ use Mix.Config
 config :td_se, TdSeWeb.Endpoint,
   secret_key_base: "Tnx0DSVezBjVOM0khqqoly6Or6v99Bpp/4owz1N+y9IO5SMDX/REZANm6rzlyTkm"
 
+config :td_se, TdSe.Auth.Guardian,
+  allowed_algos: ["HS512"], # optional
+  issuer: "tdauth",
+  ttl: { 1, :hours },
+  secret_key: "${GUARDIAN_SECRET_KEY}"
+
 config :td_se, :elasticsearch,
   search_service: TdSe.Search,
   es_host: "${ES_HOST}",

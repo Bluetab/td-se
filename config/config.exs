@@ -5,6 +5,9 @@
 # is restricted to this project.
 use Mix.Config
 
+# Hashing algorithm
+config :td_se, hashing_module: Comeonin.Bcrypt
+
 # Configures the endpoint
 config :td_se, TdSeWeb.Endpoint,
   url: [host: "localhost"],
@@ -17,6 +20,12 @@ config :td_se, TdSeWeb.Endpoint,
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
   metadata: [:user_id]
+
+config :td_se, TdBg.Auth.Guardian,
+  allowed_algos: ["HS512"], # optional
+  issuer: "tdauth",
+  ttl: { 1, :hours },
+  secret_key: "SuperSecretTruedat"
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
