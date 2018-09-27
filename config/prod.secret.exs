@@ -9,11 +9,10 @@ use Mix.Config
 # kept out of version control and might be hard to recover
 # or recreate for your teammates (or yourself later on).
 config :td_se, TdSeWeb.Endpoint,
-  secret_key_base: "bbia29JeljAxzYeb8If4wXVoC+ETCjfNAwijzzC5ajuDF3ysPA/91ktNOGm0YyaA"
+  secret_key_base: "Tnx0DSVezBjVOM0khqqoly6Or6v99Bpp/4owz1N+y9IO5SMDX/REZANm6rzlyTkm"
 
 config :td_se, :elasticsearch,
   search_service: TdSe.Search,
   es_host: "${ES_HOST}",
   es_port: "${ES_PORT}",
   type_name: "doc"
-

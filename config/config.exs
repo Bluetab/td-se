@@ -5,14 +5,10 @@
 # is restricted to this project.
 use Mix.Config
 
-# General application configuration
-config :td_se,
-  ecto_repos: [TdSe.Repo]
-
 # Configures the endpoint
 config :td_se, TdSeWeb.Endpoint,
   url: [host: "localhost"],
-  secret_key_base: "HvXAtV62wmfYp0wBBs7Z3XXIIOvYfEIsyysBjOqNKV6HEFf8oXbSsJvmOgpbNaKq",
+  secret_key_base: "kOMRdB8CGJ31Wmi0gNOHIGJlF/ITlZZ8Uy0N/IJDpc5TKUU9W1O8j/sCa5y9iMqw",
   render_errors: [view: TdSeWeb.ErrorView, accepts: ~w(json)],
   pubsub: [name: TdSe.PubSub,
            adapter: Phoenix.PubSub.PG2]

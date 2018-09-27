@@ -33,7 +33,7 @@ defmodule TdSeWeb.Endpoint do
   plug Plug.Session,
     store: :cookie,
     key: "_td_se_key",
-    signing_salt: "+WgTFapT"
+    signing_salt: "heN7N3Ed"
 
   plug TdSeWeb.Router
 
