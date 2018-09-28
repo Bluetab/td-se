@@ -22,3 +22,5 @@ config :td_se, :elasticsearch,
   es_host: "${ES_HOST}",
   es_port: "${ES_PORT}",
   type_name: "doc"
+
+config :td_perms, redis_uri: "${REDIS_URI}"

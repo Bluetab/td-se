@@ -6,19 +6,6 @@ use Mix.Config
 # The watchers configuration can be used to run external
 # watchers to your application. For example, we use it
 # with brunch.io to recompile .js and .css sources.
-config :td_se, TdSeWeb.Endpoint,
-  http: [port: 4006],
-  url: [host: "localhost", port: 4006],
-  debug_errors: true,
-  code_reloader: true,
-  check_origin: false,
-  watchers: []
-
-config :td_se, :elasticsearch,
-  search_service: TdSe.Search,
-  es_host: "localhost",
-  es_port: 9200,
-  type_name: "doc"
 
 # ## SSL Support
 #
@@ -42,3 +29,20 @@ config :logger, :console, format: "[$level] $message\n"
 # Set a higher stacktrace during development. Avoid configuring such
 # in production as building large stacktraces may be expensive.
 config :phoenix, :stacktrace_depth, 20
+
+config :td_se, TdSeWeb.Endpoint,
+  http: [port: 4006],
+  url: [host: "localhost", port: 4006],
+  debug_errors: true,
+  code_reloader: true,
+  check_origin: false,
+  watchers: []
+
+config :td_se, :elasticsearch,
+  search_service: TdSe.Search,
+  es_host: "localhost",
+  es_port: 9200,
+  type_name: "doc"
+
+config :td_perms, redis_uri: "redis://localhost"
+
