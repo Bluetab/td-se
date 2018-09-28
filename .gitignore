@@ -4,6 +4,8 @@
 /deps
 /*.ez
 /dist
+/.elixir_ls
+/.history
 
 # Generated on crash by the VM
 erl_crash.dump
