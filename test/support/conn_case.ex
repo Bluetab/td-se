@@ -14,6 +14,7 @@ defmodule TdSeWeb.ConnCase do
   """
 
   use ExUnit.CaseTemplate
+  alias Phoenix.ConnTest
 
   using do
     quote do
@@ -27,7 +28,7 @@ defmodule TdSeWeb.ConnCase do
   end
 
   setup _tags do
-    {:ok, conn: Phoenix.ConnTest.build_conn()}
+    {:ok, conn: ConnTest.build_conn()}
   end
 
 end
