@@ -15,6 +15,8 @@ defmodule TdSeWeb.ConnCase do
 
   use ExUnit.CaseTemplate
   alias Phoenix.ConnTest
+  alias TdPerms.MockPermissionResolver
+  import TdSe.Authentication, only: :functions
 
   using do
     quote do
@@ -27,8 +29,23 @@ defmodule TdSeWeb.ConnCase do
     end
   end
 
-  setup _tags do
-    {:ok, conn: ConnTest.build_conn()}
+  @admin_user_name "app-admin"
+
+  setup tags do
+    cond do
+      tags[:admin_authenticated] ->
+        user = create_user(%{user_name: @admin_user_name}, is_admin: true)
+        create_user_auth_conn(user)
+      tags[:authenticated_user] ->
+         user = create_user(tags[:authenticated_user], is_admin: false)
+         {:ok, auth_conn} = create_user_auth_conn(user)
+         case Map.get(tags[:authenticated_user], :permissions, nil) do
+          nil -> :ok
+          permissions -> MockPermissionResolver.put_user_permissions(auth_conn.claims["jti"], permissions)
+         end
+       true ->
+         {:ok, conn: ConnTest.build_conn()}
+    end
   end
 
 end

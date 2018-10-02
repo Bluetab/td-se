@@ -38,6 +38,25 @@ defmodule TdSe.ESClientApi do
       end)
   end
 
+  def bulk_index_content(items) do
+    json_bulk_data =
+      items
+      |> Enum.map(fn item ->
+        [build_bulk_metadata(item), build_bulk_doc(item)]
+      end)
+      |> List.flatten()
+      |> Enum.join("\n")
+
+    post("_bulk", json_bulk_data <> "\n")
+  end
+
+  defp build_bulk_doc(item) do
+    "#{item |> Map.fetch!("search_fields") |> Poison.encode!()}"
+  end
+
+  defp build_bulk_metadata(item) do
+    ~s({"index": {"_id": #{Map.fetch!(item, "id")}, "_type": "#{get_type_name()}", "_index": "#{Map.fetch!(item, "index_name")}"}})
+  end
   @doc """
   Loads all index configuration into elasticsearch
   """

@@ -1,7 +1,7 @@
 {
     "business_concept_test": {
         "mappings": {
-            "_doc": {
+            "doc": {
                 "properties": {
                     "domain_ids": {
                         "type": "long"
@@ -26,7 +26,7 @@
     },
     "data_structure_test": {
         "mappings": {
-            "_doc": {
+            "doc": {
                 "properties": {
                     "domain_ids": {
                         "type": "long"

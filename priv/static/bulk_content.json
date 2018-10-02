@@ -1,0 +1,55 @@
+{
+    "bulk_list": [
+        {
+            "index_name": "business_concept_test", 
+            "id": "1", 
+            "search_fields": {
+                "domain_ids": [2, 3],
+                "status": "draft",
+                "name": "My Concept 1"
+            }
+        },
+        {
+            "index_name": "business_concept_test",
+            "id": "2",
+            "search_fields": {
+                "domain_ids": [2],
+                "status": "deprecated",
+                "name": "My Concept 2"
+            }
+        },
+        {
+            "index_name": "business_concept_test",
+            "id": "3",
+            "search_fields": {
+                "domain_ids": [1, 2],
+                "status": "published",
+                "name": "My Concept 3"
+            }
+        },
+        {
+            "index_name": "data_structure_test",
+            "id": "4",
+            "search_fields": {
+                "domain_ids": [1],
+                "name": "My Structure 1"
+            }
+        },
+        {
+            "index_name": "data_structure_test",
+            "id": "5",
+            "search_fields": {
+                "domain_ids": [4, 5],
+                "name": "My Structure 2"
+            }
+        },
+        {
+            "index_name": "data_structure_test",
+            "id": "6",
+            "search_fields": {
+                "domain_ids": [1, 2],
+                "name": "My Structure 3"
+            }           
+        }
+    ]
+}
