@@ -1,0 +1,44 @@
+{
+    "business_concept_test": {
+        "mappings": {
+            "_doc": {
+                "properties": {
+                    "domain_ids": {
+                        "type": "long"
+                    },
+                    "status": {
+                        "type": "keyword"
+                    },
+                    "id": {
+                        "type": "long"
+                    },
+                    "name": {
+                        "type": "text",
+                        "fields": {
+                            "raw": {
+                                "type": "keyword", "normalizer": "sortable"
+                                }
+                            }
+                    }
+                }
+            }
+        }
+    },
+    "data_structure_test": {
+        "mappings": {
+            "_doc": {
+                "properties": {
+                    "domain_ids": {
+                        "type": "long"
+                    },
+                    "id": {
+                        "type": "long"
+                    },
+                    "name": {
+                        "type": "text"
+                    }
+                }
+            }
+        }
+    }
+}

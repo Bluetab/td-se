@@ -1,4 +1,5 @@
 defmodule TdSe.Mixfile do
+  @moduledoc false
   use Mix.Project
 
   def project do
@@ -9,6 +10,7 @@ defmodule TdSe.Mixfile do
       elixirc_paths: elixirc_paths(Mix.env),
       compilers: [:phoenix, :gettext] ++ Mix.compilers,
       start_permanent: Mix.env == :prod,
+      aliases: aliases(),
       deps: deps()
     ]
   end
@@ -52,4 +54,11 @@ defmodule TdSe.Mixfile do
       {:td_perms, git: "https://github.com/Bluetab/td-perms.git", tag: "v0.3.6"}
     ]
   end
+
+  defp aliases do
+    [
+      "test": ["Se.EsInit", "test", "Se.EsClean"]
+    ]
+  end
+
 end

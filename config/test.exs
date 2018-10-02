@@ -15,6 +15,10 @@ config :td_se, :elasticsearch,
   es_port: 9200,
   type_name: "doc"
 
+config :td_se, :elastic_indexes,
+  index_data_structure: "data_structure_test",
+  index_bunsiness_concept: "business_concept_test"
+
 config :td_se, permission_resolver: TdPerms.Permissions
 
 config :td_perms, redis_uri: "redis://localhost"

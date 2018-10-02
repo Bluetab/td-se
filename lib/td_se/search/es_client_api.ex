@@ -5,6 +5,39 @@ defmodule TdSe.ESClientApi do
 
   @moduledoc false
 
+  def create_indexes do
+    indexes_map =
+      :code.priv_dir(:td_se)
+      |> Path.join("static/indexes.json")
+      |> File.read!()
+      |> Poison.decode!()
+
+    indexes_map
+    |> Map.keys()
+    |> Enum.map(fn index_name ->
+      mapping = indexes_map |> Map.fetch!(index_name) |> Poison.encode!()
+      %HTTPoison.Response{body: _response, status_code: status} =
+        put!(index_name, mapping)
+        Logger.info("Create index #{index_name} status #{status}")
+    end)
+  end
+
+  def delete_indexes(options \\ []) do
+    indexes_map =
+      :code.priv_dir(:td_se)
+      |> Path.join("static/indexes.json")
+      |> File.read!()
+      |> Poison.decode!()
+
+    indexes_map
+      |> Map.keys()
+      |> Enum.map(fn index_name ->
+        %HTTPoison.Response{body: _response, status_code: status} =
+          delete!(index_name, options)
+          Logger.info("Delete index #{index_name} status #{status}")
+      end)
+  end
+
   @doc """
   Loads all index configuration into elasticsearch
   """
@@ -25,7 +58,8 @@ defmodule TdSe.ESClientApi do
   end
 
   defp get_type_name do
-    Application.get_env(:td_se, :elasticsearch)[:type_name] # doc
+    # doc
+    Application.get_env(:td_se, :elasticsearch)[:type_name]
   end
 
   defp get_search_path(index_name, id) do

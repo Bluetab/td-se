@@ -22,6 +22,10 @@ config :td_se, TdSeWeb.Endpoint,
 # Do not print debug messages in production
 config :logger, level: :info
 
+config :td_se, :elastic_indexes,
+  index_data_structure: "data_structure",
+  index_bunsiness_concept: "business_concept"
+
 # ## SSL Support
 #
 # To get SSL working, you will need to add the `https` key

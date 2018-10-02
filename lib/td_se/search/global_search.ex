@@ -9,6 +9,8 @@ defmodule TdSe.GlobalSearch do
   alias TdSe.Search.Aggregations
 
   @search_service Application.get_env(:td_se, :elasticsearch)[:search_service]
+  @data_structure_index Application.get_env(:td_se, :elastic_indexes)[:index_data_structure]
+  @business_concept_index Application.get_env(:td_se, :elastic_indexes)[:index_bunsiness_concept]
 
   def search(params, user, page \\ 0, size \\ 50)
 
@@ -100,12 +102,12 @@ defmodule TdSe.GlobalSearch do
     %{bool: %{should: should_clause}}
   end
 
-  defp filter_by_index("business_concept" = index, permissions) do
+  defp filter_by_index(@business_concept_index = index, permissions) do
     permissions
       |> Enum.map(&entry_to_filter_clause(&1, index))
   end
 
-  defp filter_by_index("data_structure" = index, permissions) do
+  defp filter_by_index(@data_structure_index = index, permissions) do
     permissions
       |> Enum.filter(&Enum.member?(&1.permissions, :view_data_structure))
       |> Enum.map(&entry_to_filter_clause(&1, index))
@@ -113,7 +115,7 @@ defmodule TdSe.GlobalSearch do
 
   defp entry_to_filter_clause(
          %{resource_id: resource_id, permissions: permissions},
-         "business_concept" = index
+         @business_concept_index = index
        ) do
 
     domain_clause = %{term: %{domain_ids: resource_id}}
@@ -131,7 +133,7 @@ defmodule TdSe.GlobalSearch do
 
   defp entry_to_filter_clause(
     %{resource_id: resource_id, permissions: _},
-    "data_structure" = index
+    @data_structure_index = index
   ) do
 
     domain_clause = %{term: %{domain_ids: resource_id}}
