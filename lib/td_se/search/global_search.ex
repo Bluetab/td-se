@@ -18,7 +18,7 @@ defmodule TdSe.GlobalSearch do
   def search(params, %User{is_admin: true}, page, size) do
     query = create_query(params)
 
-     search = %{
+    search = %{
       from: page * size,
       size: size,
       query: query,
@@ -44,8 +44,8 @@ defmodule TdSe.GlobalSearch do
 
   defp to_terms_query({filter, values}) do
     Aggregations.aggregation_terms()
-      |> Map.get(filter)
-      |> get_filter(values, filter)
+    |> Map.get(filter)
+    |> get_filter(values, filter)
   end
 
   defp get_filter(%{terms: %{field: field}}, values, _) do
@@ -55,16 +55,16 @@ defmodule TdSe.GlobalSearch do
   defp filter(_params, [], _page, _size), do: []
 
   defp filter(params, [_h | _t] = permissions, page, size) do
-
     filter = permissions |> create_filter_clause(params)
-
     query = create_query(params, filter)
-    %{from: page * size, size: size, query: query}
+
+    %{from: page * size, size: size, query: query, aggs: Aggregations.aggregation_terms()}
     |> do_search
   end
 
   defp create_query(%{"query" => query}) do
     equery = Query.add_query_wildcard(query)
+
     %{simple_query_string: %{query: equery}}
     |> bool_query
   end
@@ -76,6 +76,7 @@ defmodule TdSe.GlobalSearch do
 
   defp create_query(%{"query" => query}, filter) do
     equery = Query.add_query_wildcard(query)
+
     %{simple_query_string: %{query: equery}}
     |> bool_query(filter)
   end
@@ -96,28 +97,27 @@ defmodule TdSe.GlobalSearch do
   defp create_filter_clause(permissions, %{"indexes" => indexes}) do
     should_clause =
       indexes
-        |> Enum.map(&filter_by_index(&1, permissions))
-        |> Enum.flat_map(fn x -> x end)
+      |> Enum.map(&filter_by_index(&1, permissions))
+      |> Enum.flat_map(fn x -> x end)
 
     %{bool: %{should: should_clause}}
   end
 
   defp filter_by_index(@business_concept_index = index, permissions) do
     permissions
-      |> Enum.map(&entry_to_filter_clause(&1, index))
+    |> Enum.map(&entry_to_filter_clause(&1, index))
   end
 
   defp filter_by_index(@data_structure_index = index, permissions) do
     permissions
-      |> Enum.filter(&Enum.member?(&1.permissions, :view_data_structure))
-      |> Enum.map(&entry_to_filter_clause(&1, index))
+    |> Enum.filter(&Enum.member?(&1.permissions, :view_data_structure))
+    |> Enum.map(&entry_to_filter_clause(&1, index))
   end
 
   defp entry_to_filter_clause(
          %{resource_id: resource_id, permissions: permissions},
          @business_concept_index = index
        ) do
-
     domain_clause = %{term: %{domain_ids: resource_id}}
     index_clause = %{terms: %{_index: [index]}}
 
@@ -132,10 +132,9 @@ defmodule TdSe.GlobalSearch do
   end
 
   defp entry_to_filter_clause(
-    %{resource_id: resource_id, permissions: _},
-    @data_structure_index = index
-  ) do
-
+         %{resource_id: resource_id, permissions: _},
+         @data_structure_index = index
+       ) do
     domain_clause = %{term: %{domain_ids: resource_id}}
     index_clause = %{terms: %{_index: [index]}}
 
@@ -146,8 +145,11 @@ defmodule TdSe.GlobalSearch do
 
   defp do_search(search) do
     %{results: results, total: total} = @search_service.search(search)
-    results = results |> Enum.map(&Map.get(&1, "_source"))
+    results = results |> Enum.map(
+      fn result ->
+        result |> Map.get("_source") |> Map.merge(Map.take(result, ["_index"]))
+      end
+      )
     %{results: results, total: total}
   end
-
 end

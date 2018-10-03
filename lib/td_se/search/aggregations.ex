@@ -5,7 +5,7 @@ defmodule TdSe.Search.Aggregations do
 
   def aggregation_terms do
     static_keywords = [
-      {"_index", %{indices: %{terms: %{field: "_index"}}}}
+      {"_index", %{terms: %{field: "_index"}}}
     ]
 
     static_keywords

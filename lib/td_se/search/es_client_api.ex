@@ -16,9 +16,8 @@ defmodule TdSe.ESClientApi do
     |> Map.keys()
     |> Enum.map(fn index_name ->
       mapping = indexes_map |> Map.fetch!(index_name) |> Poison.encode!()
-      %HTTPoison.Response{body: _response, status_code: status} =
-        put!(index_name, mapping)
-        Logger.info("Create index #{index_name} status #{status}")
+      %HTTPoison.Response{body: _response, status_code: status} = put!(index_name, mapping)
+      Logger.info("Create index #{index_name} status #{status}")
     end)
   end
 
@@ -30,15 +29,14 @@ defmodule TdSe.ESClientApi do
       |> Poison.decode!()
 
     indexes_map
-      |> Map.keys()
-      |> Enum.map(fn index_name ->
-        %HTTPoison.Response{body: _response, status_code: status} =
-          delete!(index_name, options)
-          Logger.info("Delete index #{index_name} status #{status}")
-      end)
+    |> Map.keys()
+    |> Enum.map(fn index_name ->
+      %HTTPoison.Response{body: _response, status_code: status} = delete!(index_name, options)
+      Logger.info("Delete index #{index_name} status #{status}")
+    end)
   end
 
-  def bulk_index_content(items) do
+  def bulk_index_content(items, refresh) do
     json_bulk_data =
       items
       |> Enum.map(fn item ->
@@ -47,7 +45,7 @@ defmodule TdSe.ESClientApi do
       |> List.flatten()
       |> Enum.join("\n")
 
-    post("_bulk", json_bulk_data <> "\n")
+    post("_bulk" <> "?refresh=#{refresh}", json_bulk_data <> "\n")
   end
 
   defp build_bulk_doc(item) do
@@ -55,8 +53,11 @@ defmodule TdSe.ESClientApi do
   end
 
   defp build_bulk_metadata(item) do
-    ~s({"index": {"_id": #{Map.fetch!(item, "id")}, "_type": "#{get_type_name()}", "_index": "#{Map.fetch!(item, "index_name")}"}})
+    ~s({"index": {"_id": #{Map.fetch!(item, "id")}, "_type": "#{get_type_name()}", "_index": "#{
+      Map.fetch!(item, "index_name")
+    }"}})
   end
+
   @doc """
   Loads all index configuration into elasticsearch
   """
