@@ -4,8 +4,8 @@ defmodule TdSe.Search do
   """
   alias TdSe.ESClientApi
 
-  def search(query) do
-    response = ESClientApi.search_es(query)
+  def search(indexes, query) do
+    response = ESClientApi.search_es(indexes, query)
     case response do
       {:ok, %HTTPoison.Response{body: %{"hits" => %{"hits" => results, "total" => total}}}} ->
         %{results: results, total: total}

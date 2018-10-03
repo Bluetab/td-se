@@ -36,8 +36,7 @@ defmodule TdSeWeb.SearchController do
   defp build_params(params) do
     index_values =
       @all_indexes
-        |> Map.keys()
-        |> Enum.map(&Map.fetch!(&1, params))
+        |> Enum.map(fn {_k, v} -> v end)
 
     Map.put(params, "indexes", index_values)
   end

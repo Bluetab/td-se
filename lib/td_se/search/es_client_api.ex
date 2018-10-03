@@ -48,6 +48,10 @@ defmodule TdSe.ESClientApi do
     post("_bulk" <> "?refresh=#{refresh}", json_bulk_data <> "\n")
   end
 
+  def delete_all_docs_by_query(index_name, query) do
+    post("#{index_name}/" <> "_delete_by_query", query |> JSON.encode!())
+  end
+
   defp build_bulk_doc(item) do
     "#{item |> Map.fetch!("search_fields") |> Poison.encode!()}"
   end
@@ -69,12 +73,12 @@ defmodule TdSe.ESClientApi do
     delete(get_search_path(index_name, id))
   end
 
-  def search_es(index_name, query) do
-    post("#{index_name}/" <> "_search/", query |> JSON.encode!())
+  def search_es(indexes, query) when is_list(indexes) do
+    post("#{Enum.join(indexes, ",")}/" <> "_search/", query |> JSON.encode!())
   end
 
-  def search_es(query) do
-    post("_search/", query |> JSON.encode!())
+  def search_es(index_name, query) do
+    post("#{index_name}/" <> "_search/", query |> JSON.encode!())
   end
 
   defp get_type_name do

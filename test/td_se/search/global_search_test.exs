@@ -7,6 +7,7 @@ defmodule TdSe.GlobalSearchTest do
   alias TdSe.GlobalSearch
   use TdSeWeb.ConnCase
 
+  @all_indexes Application.get_env(:td_se, :elastic_indexes)
   @user_permissions [
     %{
       permissions: [:view_draft_business_concepts, :view_published_business_concepts],
@@ -31,6 +32,13 @@ defmodule TdSe.GlobalSearchTest do
   end
 
   setup do
+    #Delete elastic content
+    query = %{query: %{match_all: %{}}}
+
+    @all_indexes
+      |> Enum.map(fn {_k, v} -> v end)
+      |> Enum.map(&ESClientApi.delete_all_docs_by_query(&1, query))
+
     bulk_list =
       :code.priv_dir(:td_se)
       |> Path.join("static/bulk_content.json")
@@ -44,18 +52,31 @@ defmodule TdSe.GlobalSearchTest do
 
   describe "Search test" do
     @tag authenticated_user: %{user_name: "not_admin_user", permissions: @user_permissions}
-    test "list indexes on wich a not admit user has permissions", %{claims: claims} do
+    test "list indexes on which a not admin user has permissions", %{claims: claims} do
       user = Factory.build_user(claims)
+      %{results: results, total: total} =
+        GlobalSearch.search(
+            %{"indexes" => ["business_concept_test", "data_structure_test"]},
+            user,
+            0,
+            10_000
+        )
+      assert total == 3
+      assert length(results) == 3
+    end
 
-    %{results: results, total: total} =
-      GlobalSearch.search(
-          %{"indexes" => ["business_concept_test", "data_structure_test"]},
-          user,
-          0,
-          10_000
-      )
-     assert total == 3
-     assert length(results) == 3
+    @tag :admin_authenticated
+    test "list indexes with and admin user", %{claims: claims} do
+      user = Factory.build_user(claims)
+      %{results: results, total: total} =
+        GlobalSearch.search(
+            %{"indexes" => ["business_concept_test", "data_structure_test"]},
+            user,
+            0,
+            10_000
+        )
+      assert total == 6
+      assert length(results) == 6
     end
   end
 end

@@ -25,7 +25,7 @@ defmodule TdSe.GlobalSearch do
       aggs: Aggregations.aggregation_terms()
     }
 
-    do_search(search)
+    do_search(params, search)
   end
 
   # Non-admin user search, filters applied
@@ -58,8 +58,8 @@ defmodule TdSe.GlobalSearch do
     filter = permissions |> create_filter_clause(params)
     query = create_query(params, filter)
 
-    %{from: page * size, size: size, query: query, aggs: Aggregations.aggregation_terms()}
-    |> do_search
+    search = %{from: page * size, size: size, query: query, aggs: Aggregations.aggregation_terms()}
+    do_search(params, search)
   end
 
   defp create_query(%{"query" => query}) do
@@ -143,8 +143,8 @@ defmodule TdSe.GlobalSearch do
     }
   end
 
-  defp do_search(search) do
-    %{results: results, total: total} = @search_service.search(search)
+  defp do_search(%{"indexes" => indexes}, search) do
+    %{results: results, total: total} = @search_service.search(indexes, search)
     results = results |> Enum.map(
       fn result ->
         result |> Map.get("_source") |> Map.merge(Map.take(result, ["_index"]))
