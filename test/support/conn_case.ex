@@ -39,10 +39,11 @@ defmodule TdSeWeb.ConnCase do
       tags[:authenticated_user] ->
          user = create_user(tags[:authenticated_user], is_admin: false)
          {:ok, auth_conn} = create_user_auth_conn(user)
-         case Map.get(tags[:authenticated_user], :permissions, nil) do
-          nil -> :ok
-          permissions -> MockPermissionResolver.put_user_permissions(auth_conn.claims["jti"], permissions)
+         permissions = Map.get(tags[:authenticated_user], :permissions, nil)
+         if permissions != nil do
+          MockPermissionResolver.put_user_permissions(auth_conn.claims["jti"], permissions)
          end
+         {:ok, auth_conn}
        true ->
          {:ok, conn: ConnTest.build_conn()}
     end
