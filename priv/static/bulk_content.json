@@ -6,7 +6,8 @@
             "search_fields": {
                 "domain_ids": [2, 3],
                 "status": "draft",
-                "name": "My Concept 1"
+                "name": "My Concept 1",
+                "id": 1
             }
         },
         {
@@ -15,7 +16,8 @@
             "search_fields": {
                 "domain_ids": [2],
                 "status": "deprecated",
-                "name": "My Concept 2"
+                "name": "My Concept 2",
+                "id": 2
             }
         },
         {
@@ -24,7 +26,8 @@
             "search_fields": {
                 "domain_ids": [1, 2],
                 "status": "published",
-                "name": "My Concept 3"
+                "name": "My Concept 3",
+                "id": 3
             }
         },
         {
@@ -32,7 +35,8 @@
             "id": "4",
             "search_fields": {
                 "domain_ids": [1],
-                "name": "My Structure 1"
+                "name": "My Structure 1",
+                "id": 4
             }
         },
         {
@@ -40,7 +44,8 @@
             "id": "5",
             "search_fields": {
                 "domain_ids": [4, 5],
-                "name": "My Structure 2"
+                "name": "My Structure 2",
+                "id": 5
             }
         },
         {
@@ -48,7 +53,8 @@
             "id": "6",
             "search_fields": {
                 "domain_ids": [1, 2],
-                "name": "My Structure 3"
+                "name": "My Structure 3",
+                "id": 6
             }           
         }
     ]
