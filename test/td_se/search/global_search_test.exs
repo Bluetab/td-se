@@ -1,10 +1,10 @@
 defmodule TdSe.GlobalSearchTest do
   @moduledoc false
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
   alias TdPerms.MockPermissionResolver
-  alias TdSe.ESClientApi
   alias TdSe.Factory
   alias TdSe.GlobalSearch
+  alias TdSe.TestDataHelper
   use TdSeWeb.ConnCase
 
   @all_indexes Application.get_env(:td_se, :elastic_indexes)
@@ -34,25 +34,15 @@ defmodule TdSe.GlobalSearchTest do
   setup do
     #Delete elastic content
     query = %{query: %{match_all: %{}}}
-
-    @all_indexes
-      |> Enum.map(fn {_k, v} -> v end)
-      |> Enum.map(&ESClientApi.delete_all_docs_by_query(&1, query))
-
-    bulk_list =
-      :code.priv_dir(:td_se)
-      |> Path.join("static/bulk_content.json")
-      |> File.read!()
-      |> Poison.decode!()
-      |> Map.fetch!("bulk_list")
-
-    ESClientApi.bulk_index_content(bulk_list, "wait_for")
+    TestDataHelper.clean_docs_from_indexes(@all_indexes, query)
+    TestDataHelper.bulk_test_data("static/bulk_content.json")
     :ok
   end
 
   describe "Search test" do
+
     @tag authenticated_user: %{user_name: "not_admin_user", permissions: @user_permissions}
-    test "list indexes on which a not admin user has permissions", %{claims: claims} do
+    test "search over the indexes with a not admin user has permissions", %{claims: claims} do
       user = Factory.build_user(claims)
       %{results: results, total: total} =
         GlobalSearch.search(
@@ -65,8 +55,40 @@ defmodule TdSe.GlobalSearchTest do
       assert length(results) == 3
     end
 
+    @tag authenticated_user: %{user_name: "not_admin_user", permissions: @user_permissions}
+    test "search over a business_concept_test index with a not admin user", %{claims: claims} do
+      user = Factory.build_user(claims)
+      %{results: results, total: total} =
+        GlobalSearch.search(
+            %{"indexes" => ["business_concept_test"]},
+            user,
+            0,
+            10_000
+        )
+      assert total == 2
+      assert length(results) == 2
+    end
+
+    @tag authenticated_user: %{user_name: "not_admin_user", permissions: @user_permissions}
+    test "search over a business_concept_test index with a not admin user using a query", %{claims: claims} do
+      user = Factory.build_user(claims)
+      %{results: results, total: total} =
+        GlobalSearch.search(
+            %{
+              "query" => "Stru",
+              "indexes" => ["business_concept_test", "data_structure_test"]
+              },
+            user,
+            0,
+            10_000
+        )
+        assert total == 1
+        assert length(results) == 1
+        assert Enum.all?(results, &(&1["name"] == "My Structure 2"))
+      end
+
     @tag :admin_authenticated
-    test "list indexes with and admin user", %{claims: claims} do
+    test "search over the indexes with an admin user", %{claims: claims} do
       user = Factory.build_user(claims)
       %{results: results, total: total} =
         GlobalSearch.search(
