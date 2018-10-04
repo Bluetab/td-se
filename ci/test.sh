@@ -18,6 +18,7 @@ mix deps.clean --all
 echo "local rebar executed"
 echo "Downloading deps"
 mix deps.get
+mix phx.swagger.generate priv/static/swagger.json
 echo "Starting tests"
 mix test || exit 1
 
