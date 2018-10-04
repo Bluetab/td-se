@@ -1,6 +1,7 @@
 defmodule TdSe.Mixfile do
   @moduledoc false
   use Mix.Project
+  alias Mix.Tasks.Phx.Swagger.Generate, as: PhxSwaggerGenerate
 
   def project do
     [
@@ -57,8 +58,14 @@ defmodule TdSe.Mixfile do
 
   defp aliases do
     [
-      "test": ["Se.EsInit", "test", "Se.EsClean"]
+      "test": ["Se.EsInit", "test", "Se.EsClean"],
+      "compile": ["compile", &pxh_swagger_generate/1]
     ]
   end
 
+  defp pxh_swagger_generate(_) do
+    if Mix.env in [:dev, :prod] do
+      PhxSwaggerGenerate.run(["priv/static/swagger.json"])
+    end
+  end
 end

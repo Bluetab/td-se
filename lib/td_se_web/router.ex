@@ -1,8 +1,8 @@
 defmodule TdSeWeb.Router do
   use TdSeWeb, :router
 
-  @endpoint_url "#{Application.get_env(:td_se, TdLmWeb.Endpoint)[:url][:host]}:#{
-    Application.get_env(:td_se, TdLmWeb.Endpoint)[:url][:port]
+  @endpoint_url "#{Application.get_env(:td_se, TdSeWeb.Endpoint)[:url][:host]}:#{
+    Application.get_env(:td_se, TdSeWeb.Endpoint)[:url][:port]
   }"
 
   pipeline :api do
@@ -19,6 +19,10 @@ defmodule TdSeWeb.Router do
     plug(Guardian.Plug.LoadResource)
   end
 
+  scope "/api/swagger" do
+    forward("/", PhoenixSwagger.Plug.SwaggerUI, otp_app: :td_se, swagger_file: "swagger.json")
+  end
+
   scope "/api", TdSeWeb do
     pipe_through([:api])
     get "/ping", PingController, :ping
@@ -29,4 +33,27 @@ defmodule TdSeWeb.Router do
     post "/global_search", SearchController, :global_search
   end
 
+  def swagger_info do
+    %{
+      schemes: ["http"],
+      info: %{
+        version: "1.0",
+        title: "TdSe"
+      },
+      host: @endpoint_url,
+      basePath: "/api",
+      securityDefinitions: %{
+        bearer: %{
+          type: "apiKey",
+          name: "Authorization",
+          in: "header"
+        }
+      },
+      security: [
+        %{
+          bearer: []
+        }
+      ]
+    }
+  end
 end

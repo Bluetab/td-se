@@ -29,6 +29,11 @@ config :td_se, TdSe.Auth.Guardian,
 
 config :td_se, permission_resolver: TdPerms.Permissions
 
+config :td_se, :phoenix_swagger,
+  swagger_files: %{
+    "priv/static/swagger.json" => [router: TdSeWeb.Router]
+ }
+
 config :td_perms, permissions: [
   :is_admin,
   :create_acl_entry,
