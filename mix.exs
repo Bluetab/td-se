@@ -52,7 +52,7 @@ defmodule TdSe.Mixfile do
       {:ex_json_schema, "~> 0.5"},
       {:json_diff, "~> 0.1.0"},
       {:csv, "~> 2.0.0"},
-      {:td_perms, git: "https://github.com/Bluetab/td-perms.git", tag: "v0.3.6"}
+      {:td_perms, git: "https://github.com/Bluetab/td-perms.git", tag: "v0.3.10"}
     ]
   end
 
