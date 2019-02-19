@@ -32,10 +32,14 @@ defmodule TdBgWeb.SearchControllerTest do
         )
       validate_resp_schema(conn, schema, "GlobalSearchResponse")
       result_data = json_response(conn, 200)["data"]
-      assert length(result_data) == 2
-      Enum.all?(result_data, fn index_result ->
-        length(Map.get(index_result, "results")) == 3 end
-        )
+      assert length(result_data) == 3
+      assert Enum.all?(result_data, fn %{"index" => index, "results" => results} ->
+        case index do
+          "data_structure_test" -> length(results) == 4
+          "business_concept_test" -> length(results) == 4
+          "ingest_test" -> length(results) == 1
+        end
+        end)
     end
 
     @tag :admin_authenticated
@@ -44,13 +48,13 @@ defmodule TdBgWeb.SearchControllerTest do
         post(
           conn,
           search_path(conn, :global_search),
-          indexes: [@all_indexes[:index_data_structure]]
+          indexes: [@all_indexes[:data_structure_index]]
         )
       validate_resp_schema(conn, schema, "GlobalSearchResponse")
       result_data = json_response(conn, 200)["data"]
       assert length(result_data) == 1
-      Enum.all?(result_data, fn index_result ->
-        length(Map.get(index_result, "results")) == 3 end
+      assert Enum.all?(result_data, fn index_result ->
+        length(Map.get(index_result, "results")) == 4 end
         )
     end
   end

@@ -13,18 +13,45 @@
                         "type": "long"
                     },
                     "name": {
-                        "type": "text",
-                        "fields": {
-                            "raw": {
-                                "type": "keyword", "normalizer": "sortable"
+                        "type": "text"
+                    },
+                    "content": {
+                        "properties": {
+                            "_confidential": {
+                                "type": "text",
+                                "fields": {
+                                    "raw": {
+                                        "type": "keyword"
+                                    }
                                 }
                             }
+                        }
                     }
                 }
             }
         }
     },
     "data_structure_test": {
+        "mappings": {
+            "doc": {
+                "properties": {
+                    "domain_ids": {
+                        "type": "long"
+                    },
+                    "id": {
+                        "type": "long"
+                    },
+                    "name": {
+                        "type": "text"
+                    },
+                    "confidential": {
+                        "type": "boolean"
+                    }
+                }
+            }
+        }
+    },
+    "ingest_test": {
         "mappings": {
             "doc": {
                 "properties": {
