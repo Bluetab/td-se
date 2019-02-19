@@ -62,17 +62,6 @@ defmodule TdSe.ESClientApi do
     }"}})
   end
 
-  @doc """
-  Loads all index configuration into elasticsearch
-  """
-  def index_content(index_name, id, body) do
-    put(get_search_path(index_name, id), body)
-  end
-
-  def delete_content(index_name, id) do
-    delete(get_search_path(index_name, id))
-  end
-
   def search_es(indexes, query) when is_list(indexes) do
     post("#{Enum.join(indexes, ",")}/" <> "_search/", query |> JSON.encode!())
   end
@@ -84,11 +73,6 @@ defmodule TdSe.ESClientApi do
   defp get_type_name do
     # doc
     Application.get_env(:td_se, :elasticsearch)[:type_name]
-  end
-
-  defp get_search_path(index_name, id) do
-    type_name = get_type_name()
-    "#{index_name}/" <> "#{type_name}/" <> "#{id}"
   end
 
   @doc """
@@ -111,7 +95,6 @@ defmodule TdSe.ESClientApi do
     Adds requests headers
   """
   def process_request_headers(_headers) do
-    headers = [{"Content-Type", "application/json"}]
-    headers
+    [{"Content-Type", "application/json"}]
   end
 end
