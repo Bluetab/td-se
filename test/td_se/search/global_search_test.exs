@@ -10,7 +10,7 @@ defmodule TdSe.GlobalSearchTest do
   @all_indexes Application.get_env(:td_se, :elastic_indexes)
   @user_permissions [
     %{
-      permissions: [:view_draft_business_concepts, :view_published_business_concepts],
+      permissions: [:view_draft_business_concepts, :view_draft_ingests, :view_published_business_concepts],
       resource_id: 2,
       resource_type: "domain"
     },
@@ -46,13 +46,14 @@ defmodule TdSe.GlobalSearchTest do
       user = Factory.build_user(claims)
       %{results: results, total: total} =
         GlobalSearch.search(
-            %{"indexes" => ["business_concept_test", "data_structure_test"]},
+            %{"indexes" => ["business_concept_test", "data_structure_test", "ingest_test"]},
             user,
             0,
             10_000
         )
-      assert total == 3
-      assert length(results) == 3
+
+      assert total == 4
+      assert length(results) == 4
     end
 
     @tag authenticated_user: %{user_name: "not_admin_user", permissions: @user_permissions}
@@ -70,7 +71,7 @@ defmodule TdSe.GlobalSearchTest do
     end
 
     @tag authenticated_user: %{user_name: "not_admin_user", permissions: @user_permissions}
-    test "search over a business_concept_test index with a not admin user using a query", %{claims: claims} do
+    test "search over a data_structure_test index with a not admin user using a query", %{claims: claims} do
       user = Factory.build_user(claims)
       %{results: results, total: total} =
         GlobalSearch.search(
@@ -92,13 +93,13 @@ defmodule TdSe.GlobalSearchTest do
       user = Factory.build_user(claims)
       %{results: results, total: total} =
         GlobalSearch.search(
-            %{"indexes" => ["business_concept_test", "data_structure_test"]},
+            %{"indexes" => ["business_concept_test", "data_structure_test", "ingest_test"]},
             user,
             0,
             10_000
         )
-      assert total == 6
-      assert length(results) == 6
+      assert total == 9
+      assert length(results) == 9
     end
   end
 end

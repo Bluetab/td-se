@@ -1,4 +1,4 @@
-defmodule TdSe.BusinessConcept.Query do
+defmodule TdSe.Search.Query do
   @moduledoc """
     Helper module to manipulate queries.
   """
@@ -12,5 +12,4 @@ defmodule TdSe.BusinessConcept.Query do
       _ -> "#{query}*"
     end
   end
-
 end

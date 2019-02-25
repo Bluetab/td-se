@@ -7,7 +7,10 @@
                 "domain_ids": [2, 3],
                 "status": "draft",
                 "name": "My Concept 1",
-                "id": 1
+                "id": 1,
+                "content": {
+                    "_confidential": "No"
+                }
             }
         },
         {
@@ -17,45 +20,87 @@
                 "domain_ids": [2],
                 "status": "deprecated",
                 "name": "My Concept 2",
-                "id": 2
+                "id": 2,
+                "content": {
+                    "_confidential": "No"
+                }
             }
         },
         {
             "index_name": "business_concept_test",
             "id": "3",
             "search_fields": {
-                "domain_ids": [1, 2],
-                "status": "published",
+                "domain_ids": [2],
+                "status": "draft",
                 "name": "My Concept 3",
-                "id": 3
+                "id": 3,
+                "content": {
+                    "_confidential": "No"
+                }
             }
         },
         {
-            "index_name": "data_structure_test",
+            "index_name": "business_concept_test",
             "id": "4",
             "search_fields": {
-                "domain_ids": [1],
-                "name": "My Structure 1",
-                "id": 4
+                "domain_ids": [1, 2],
+                "status": "published",
+                "name": "My Concept 4",
+                "id": 4,
+                "content": {
+                    "_confidential": "Si"
+                }
             }
         },
         {
             "index_name": "data_structure_test",
             "id": "5",
             "search_fields": {
-                "domain_ids": [4, 5],
-                "name": "My Structure 2",
-                "id": 5
+                "domain_ids": [1],
+                "name": "My Structure 1",
+                "id": 5,
+                "confidential": false
             }
         },
         {
             "index_name": "data_structure_test",
             "id": "6",
             "search_fields": {
+                "domain_ids": [4, 5],
+                "name": "My Structure 2",
+                "id": 6,
+                "confidential": false
+            }
+        },
+        {
+            "index_name": "data_structure_test",
+            "id": "7",
+            "search_fields": {
                 "domain_ids": [1, 2],
                 "name": "My Structure 3",
-                "id": 6
+                "id": 7,
+                "confidential": false
             }           
+        },
+        {
+            "index_name": "data_structure_test",
+            "id": "8",
+            "search_fields": {
+                "domain_ids": [1, 2],
+                "name": "My Structure 4",
+                "id": 8,
+                "confidential": true
+            }           
+        },
+        {
+            "index_name": "ingest_test", 
+            "id": "9", 
+            "search_fields": {
+                "domain_ids": [2, 3],
+                "status": "draft",
+                "name": "My Ingest 1",
+                "id": 9
+            }
         }
     ]
 }
