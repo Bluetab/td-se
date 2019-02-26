@@ -36,8 +36,8 @@ defmodule TdBgWeb.SearchControllerTest do
       assert Enum.all?(result_data, fn %{"index" => index, "results" => results} ->
         case index do
           "data_structure_test" -> length(results) == 4
-          "business_concept_test" -> length(results) == 4
-          "ingest_test" -> length(results) == 1
+          "business_concept_test" -> length(results) == 2
+          "ingest_test" -> Enum.empty?(results)
         end
         end)
     end
