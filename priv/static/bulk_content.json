@@ -5,8 +5,9 @@
             "id": "1", 
             "search_fields": {
                 "domain_ids": [2, 3],
-                "status": "draft",
+                "status": "published",
                 "name": "My Concept 1",
+                "description": "My Desc",
                 "id": 1,
                 "content": {
                     "_confidential": "No"
@@ -20,6 +21,7 @@
                 "domain_ids": [2],
                 "status": "deprecated",
                 "name": "My Concept 2",
+                "description": "My Desc",
                 "id": 2,
                 "content": {
                     "_confidential": "No"
@@ -33,6 +35,7 @@
                 "domain_ids": [2],
                 "status": "draft",
                 "name": "My Concept 3",
+                "description": "My Desc",
                 "id": 3,
                 "content": {
                     "_confidential": "No"
@@ -46,6 +49,7 @@
                 "domain_ids": [1, 2],
                 "status": "published",
                 "name": "My Concept 4",
+                "description": "My Desc",
                 "id": 4,
                 "content": {
                     "_confidential": "Si"
@@ -58,6 +62,7 @@
             "search_fields": {
                 "domain_ids": [1],
                 "name": "My Structure 1",
+                "description": "My Desc",
                 "id": 5,
                 "confidential": false
             }
@@ -68,6 +73,7 @@
             "search_fields": {
                 "domain_ids": [4, 5],
                 "name": "My Structure 2",
+                "description": "My Desc",
                 "id": 6,
                 "confidential": false
             }
@@ -78,6 +84,7 @@
             "search_fields": {
                 "domain_ids": [1, 2],
                 "name": "My Structure 3",
+                "description": "My Desc",
                 "id": 7,
                 "confidential": false
             }           
@@ -88,6 +95,7 @@
             "search_fields": {
                 "domain_ids": [1, 2],
                 "name": "My Structure 4",
+                "description": "My Desc",
                 "id": 8,
                 "confidential": true
             }           
@@ -98,6 +106,7 @@
             "search_fields": {
                 "domain_ids": [2, 3],
                 "status": "draft",
+                "description": "My Desc",
                 "name": "My Ingest 1",
                 "id": 9
             }
