@@ -20,4 +20,8 @@ defmodule TdSe.Ingests.Ingest do
       view_versioned_ingests: @status.versioned
     }
   end
+
+  def default_status do
+    [Map.get(@status, :published)]
+  end
 end

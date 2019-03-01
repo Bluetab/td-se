@@ -52,8 +52,8 @@ defmodule TdSe.GlobalSearchTest do
             10_000
         )
 
-      assert total == 4
-      assert length(results) == 4
+      assert total == 2
+      assert length(results) == 2
     end
 
     @tag authenticated_user: %{user_name: "not_admin_user", permissions: @user_permissions}
@@ -66,8 +66,8 @@ defmodule TdSe.GlobalSearchTest do
             0,
             10_000
         )
-      assert total == 2
-      assert length(results) == 2
+      assert total == 1
+      assert length(results) == 1
     end
 
     @tag authenticated_user: %{user_name: "not_admin_user", permissions: @user_permissions}
@@ -89,7 +89,7 @@ defmodule TdSe.GlobalSearchTest do
       end
 
     @tag :admin_authenticated
-    test "search over the indexes with an admin user", %{claims: claims} do
+    test "search with an admin user should fetch all results filtered by status published in ingests and concepts", %{claims: claims} do
       user = Factory.build_user(claims)
       %{results: results, total: total} =
         GlobalSearch.search(
@@ -98,8 +98,8 @@ defmodule TdSe.GlobalSearchTest do
             0,
             10_000
         )
-      assert total == 9
-      assert length(results) == 9
+      assert total == 6
+      assert length(results) == 6
     end
   end
 end

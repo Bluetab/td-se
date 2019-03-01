@@ -37,6 +37,7 @@ defmodule TdSeWeb.SwaggerDefinitions do
               id(:integer)
               index(:string)
               name(:string)
+              description(:string)
             end
           end,
         GlobalSearchResponse:

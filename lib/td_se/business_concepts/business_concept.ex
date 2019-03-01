@@ -17,4 +17,8 @@ defmodule TdSe.BusinessConcepts.BusinessConcept do
       view_versioned_business_concepts: @status.versioned
     }
   end
+
+  def default_status do
+    [Map.get(@status, :published)]
+  end
 end
