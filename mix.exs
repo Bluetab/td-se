@@ -6,11 +6,15 @@ defmodule TdSe.Mixfile do
   def project do
     [
       app: :td_se,
-      version: case System.get_env("APP_VERSION") do nil -> "2.6.0-local"; v -> v end,
+      version:
+        case System.get_env("APP_VERSION") do
+          nil -> "2.14.0-local"
+          v -> v
+        end,
       elixir: "~> 1.6",
-      elixirc_paths: elixirc_paths(Mix.env),
-      compilers: [:phoenix, :gettext] ++ Mix.compilers,
-      start_permanent: Mix.env == :prod,
+      elixirc_paths: elixirc_paths(Mix.env()),
+      compilers: [:phoenix, :gettext] ++ Mix.compilers(),
+      start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps()
     ]
@@ -28,7 +32,7 @@ defmodule TdSe.Mixfile do
 
   # Specifies which paths to compile per environment.
   defp elixirc_paths(:test), do: ["lib", "test/support"]
-  defp elixirc_paths(_),     do: ["lib"]
+  defp elixirc_paths(_), do: ["lib"]
 
   # Specifies your project dependencies.
   #
@@ -58,13 +62,13 @@ defmodule TdSe.Mixfile do
 
   defp aliases do
     [
-      "test": ["Se.EsInit", "test", "Se.EsClean"],
-      "compile": ["compile", &pxh_swagger_generate/1]
+      test: ["Se.EsInit", "test", "Se.EsClean"],
+      compile: ["compile", &pxh_swagger_generate/1]
     ]
   end
 
   defp pxh_swagger_generate(_) do
-    if Mix.env in [:dev, :prod] do
+    if Mix.env() in [:dev, :prod] do
       PhxSwaggerGenerate.run(["priv/static/swagger.json"])
     end
   end
