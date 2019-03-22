@@ -17,9 +17,12 @@ config :td_se, TdSeWeb.Endpoint,
            adapter: Phoenix.PubSub.PG2]
 
 # Configures Elixir's Logger
+# set EX_LOGGER_FORMAT environment variable to override Elixir's Logger format
+# (without the 'end of line' character)
+# EX_LOGGER_FORMAT='$date $time [$level] $message'
 config :logger, :console,
-  format: "$time $metadata[$level] $message\n",
-  metadata: [:user_id]
+  format: (System.get_env("EX_LOGGER_FORMAT") || "$time $metadata[$level] $message") <> "\n",
+  metadata: [:request_id]
 
 config :td_se, TdSe.Auth.Guardian,
   allowed_algos: ["HS512"], # optional
