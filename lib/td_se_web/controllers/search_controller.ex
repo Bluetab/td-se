@@ -18,6 +18,7 @@ defmodule TdSeWeb.SearchController do
     post("/global_search")
     description("Search for all of our indexes under the whole search space")
     produces("application/json")
+
     parameters do
       search(
         :body,
@@ -25,6 +26,7 @@ defmodule TdSeWeb.SearchController do
         "Search query and filter parameters"
       )
     end
+
     response(200, "OK", Schema.ref(:GlobalSearchResponse))
   end
 
@@ -68,16 +70,16 @@ defmodule TdSeWeb.SearchController do
       |> Enum.reduce([], fn index, acc ->
         result_map =
           %{}
-            |> Map.put("index", index)
-            |> Map.put("results", Enum.filter(results, &(&1["_index"] == index)))
+          |> Map.put("index", index)
+          |> Map.put("results", Enum.filter(results, &(&1["_index"] == index)))
 
         acc ++ [result_map]
       end)
 
     conn
     |> put_resp_header("x-total-count", "#{total}")
+    |> put_view(SearchResultsView)
     |> render(
-      SearchResultsView,
       "global_search_results.json",
       global_search_results: global_search_results
     )

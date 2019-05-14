@@ -11,7 +11,7 @@ config :logger, level: :warn
 
 config :td_se, :elasticsearch,
   search_service: TdSe.Search,
-  es_host: "localhost",
+  es_host: "http://elastic",
   es_port: 9200,
   type_name: "doc"
 
@@ -21,4 +21,4 @@ config :td_se, :elastic_indexes,
   ingest_index: "ingest_test"
 
 config :td_se, permission_resolver: TdPerms.MockPermissionResolver
-config :td_perms, redis_uri: "redis://localhost"
+config :td_perms, redis_host: "redis"

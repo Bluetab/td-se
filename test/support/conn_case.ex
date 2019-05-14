@@ -22,7 +22,7 @@ defmodule TdSeWeb.ConnCase do
     quote do
       # Import conveniences for testing with connections
       use Phoenix.ConnTest
-      import TdSeWeb.Router.Helpers
+      alias TdSeWeb.Router.Helpers, as: Routes
 
       # The default endpoint for testing
       @endpoint TdSeWeb.Endpoint
@@ -36,17 +36,20 @@ defmodule TdSeWeb.ConnCase do
       tags[:admin_authenticated] ->
         user = create_user(%{user_name: @admin_user_name}, is_admin: true)
         create_user_auth_conn(user)
+
       tags[:authenticated_user] ->
-         user = create_user(tags[:authenticated_user], is_admin: false)
-         {:ok, auth_conn} = create_user_auth_conn(user)
-         permissions = Map.get(tags[:authenticated_user], :permissions, nil)
-         if permissions != nil do
+        user = create_user(tags[:authenticated_user], is_admin: false)
+        {:ok, auth_conn} = create_user_auth_conn(user)
+        permissions = Map.get(tags[:authenticated_user], :permissions, nil)
+
+        if permissions != nil do
           MockPermissionResolver.put_user_permissions(auth_conn.claims["jti"], permissions)
-         end
-         {:ok, auth_conn}
-       true ->
-         {:ok, conn: ConnTest.build_conn()}
+        end
+
+        {:ok, auth_conn}
+
+      true ->
+        {:ok, conn: ConnTest.build_conn()}
     end
   end
-
 end
