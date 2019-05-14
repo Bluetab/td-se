@@ -76,7 +76,7 @@ defmodule TdSe.ESClientApi do
   end
 
   @doc """
-    Concatenates elasticsearch path at the beggining of HTTPoison requests
+  Concatenates elasticsearch path at the beggining of HTTPoison requests
   """
   def process_url(path) do
     es_config = Application.get_env(:td_se, :elasticsearch)
@@ -84,7 +84,7 @@ defmodule TdSe.ESClientApi do
   end
 
   @doc """
-    Decodes response body
+  Decodes response body
   """
   def process_response_body(body) do
     body
@@ -92,7 +92,7 @@ defmodule TdSe.ESClientApi do
   end
 
   @doc """
-    Adds requests headers
+  Adds requests headers
   """
   def process_request_headers(_headers) do
     [{"Content-Type", "application/json"}]

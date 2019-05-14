@@ -12,9 +12,10 @@ config :td_se, TdSeWeb.Endpoint,
   secret_key_base: "Tnx0DSVezBjVOM0khqqoly6Or6v99Bpp/4owz1N+y9IO5SMDX/REZANm6rzlyTkm"
 
 config :td_se, TdSe.Auth.Guardian,
-  allowed_algos: ["HS512"], # optional
+  # optional
+  allowed_algos: ["HS512"],
   issuer: "tdauth",
-  ttl: { 1, :hours },
+  ttl: {1, :hours},
   secret_key: "${GUARDIAN_SECRET_KEY}"
 
 config :td_se, :elasticsearch,
@@ -23,4 +24,4 @@ config :td_se, :elasticsearch,
   es_port: "${ES_PORT}",
   type_name: "doc"
 
-config :td_perms, redis_uri: "${REDIS_URI}"
+config :td_perms, redis_host: "${REDIS_HOST}"
