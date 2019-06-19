@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased] 2019-05-18
+
+### Changed
+
+- [TD-1893] Use CI_JOB_ID instead of CI_PIPELINE_ID
+
 ## [2.19.0] 2019-05-14
 
 ### Fixed
