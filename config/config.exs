@@ -29,14 +29,14 @@ config :td_se, TdSe.Auth.Guardian,
   ttl: {1, :hours},
   secret_key: "SuperSecretTruedat"
 
-config :td_se, permission_resolver: TdPerms.Permissions
+config :td_se, permission_resolver: TdCache.Permissions
 
 config :td_se, :phoenix_swagger,
   swagger_files: %{
     "priv/static/swagger.json" => [router: TdSeWeb.Router]
   }
 
-config :td_perms,
+config :td_cache,
   permissions: [
     :is_admin,
     :create_acl_entry,

@@ -2,7 +2,7 @@ defmodule TdBgWeb.SearchControllerTest do
   @moduledoc false
   use ExUnit.Case, async: false
   use PhoenixSwagger.SchemaTest, "priv/static/swagger.json"
-  alias TdPerms.MockPermissionResolver
+  alias TdSe.Permissions.MockPermissionResolver
   alias TdSe.TestDataHelper
   use TdSeWeb.ConnCase
 

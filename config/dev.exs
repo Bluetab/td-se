@@ -50,5 +50,4 @@ config :td_se, :elastic_indexes,
   business_concept_index: "business_concept",
   ingest_index: "ingest"
 
-config :td_perms, redis_uri: "redis://localhost"
-
+config :td_cache, redis_host: "localhost"
