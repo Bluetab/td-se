@@ -15,7 +15,7 @@ defmodule TdSeWeb.ConnCase do
 
   use ExUnit.CaseTemplate
   alias Phoenix.ConnTest
-  alias TdPerms.MockPermissionResolver
+  alias TdSe.Permissions.MockPermissionResolver
   import TdSe.Authentication, only: :functions
 
   using do
