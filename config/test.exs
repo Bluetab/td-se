@@ -20,5 +20,5 @@ config :td_se, :elastic_indexes,
   business_concept_index: "business_concept_test",
   ingest_index: "ingest_test"
 
-config :td_se, permission_resolver: TdPerms.MockPermissionResolver
-config :td_perms, redis_host: "redis"
+config :td_se, permission_resolver: TdSe.Permissions.MockPermissionResolver
+config :td_cache, redis_host: "redis"
