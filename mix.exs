@@ -43,7 +43,7 @@ defmodule TdSe.Mixfile do
       {:plug, "~> 1.7"},
       {:jason, "~> 1.0"},
       {:gettext, "~> 0.11"},
-      {:cabbage, git: "https://github.com/Bluetab/cabbage", tag: "v0.3.7-alpha"},
+      {:cabbage, only: [:test], git: "https://github.com/Bluetab/cabbage", tag: "v0.3.7-alpha"},
       {:httpoison, "~> 1.0"},
       {:distillery, "~> 2.0", runtime: false},
       {:credo, "~> 1.0.0", only: [:dev, :test], runtime: false},
@@ -53,7 +53,7 @@ defmodule TdSe.Mixfile do
       {:ex_json_schema, "~> 0.5"},
       {:json_diff, "~> 0.1.0"},
       {:csv, "~> 2.0.0"},
-      {:td_cache, git: "https://github.com/Bluetab/td-cache.git", tag: "3.0.0"}
+      {:td_cache, git: "https://github.com/Bluetab/td-cache.git", tag: "3.0.5"}
     ]
   end
 
