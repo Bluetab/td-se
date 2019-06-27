@@ -80,7 +80,9 @@ config :td_cache,
     :view_versioned_ingests,
     :view_rejected_ingests,
     :view_deprecated_ingests,
-    :manage_confidential_structures
+    :manage_confidential_structures,
+    :manage_ingest_relations,
+    :view_data_structures_profile
   ]
 
 # Import environment specific config. This must remain at the bottom
