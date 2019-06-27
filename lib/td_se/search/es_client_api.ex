@@ -17,7 +17,7 @@ defmodule TdSe.ESClientApi do
     indexes_map
     |> Map.keys()
     |> Enum.map(fn index_name ->
-      mapping = indexes_map |> Map.fetch!(index_name) |> Poison.encode!()
+      mapping = indexes_map |> Map.fetch!(index_name) |> JSON.encode!()
       %HTTPoison.Response{body: _response, status_code: status} = put!(index_name, mapping)
       Logger.info("Create index #{index_name} status #{status}")
     end)
@@ -28,7 +28,7 @@ defmodule TdSe.ESClientApi do
       :code.priv_dir(:td_se)
       |> Path.join("static/indexes.json")
       |> File.read!()
-      |> Poison.decode!()
+      |> JSON.decode!()
 
     indexes_map
     |> Map.keys()
@@ -55,7 +55,7 @@ defmodule TdSe.ESClientApi do
   end
 
   defp build_bulk_doc(item) do
-    "#{item |> Map.fetch!("search_fields") |> Poison.encode!()}"
+    "#{item |> Map.fetch!("search_fields") |> JSON.encode!()}"
   end
 
   defp build_bulk_metadata(item) do
@@ -90,7 +90,7 @@ defmodule TdSe.ESClientApi do
   """
   def process_response_body(body) do
     body
-    |> Poison.decode!()
+    |> JSON.decode!()
   end
 
   @doc """
