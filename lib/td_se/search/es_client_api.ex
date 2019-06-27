@@ -1,7 +1,9 @@
 defmodule TdSe.ESClientApi do
   use HTTPoison.Base
+
+  alias Jason, as: JSON
+
   require Logger
-  alias Poison, as: JSON
 
   @moduledoc false
 
@@ -10,7 +12,7 @@ defmodule TdSe.ESClientApi do
       :code.priv_dir(:td_se)
       |> Path.join("static/indexes.json")
       |> File.read!()
-      |> Poison.decode!()
+      |> JSON.decode!()
 
     indexes_map
     |> Map.keys()
