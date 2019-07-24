@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## [3.2.0] 2019-07-24
 
 ## Changed
 
@@ -36,6 +36,6 @@
 ### Changed
 
 - [TD-1485] Review and update service
-    - Include on search the index `ingest`
-    - Filter `business_concept` by `_confidential` field
-    - Filtes `data_structure` by `confidential` field
+  - Include on search the index `ingest`
+  - Filter `business_concept` by `_confidential` field
+  - Filtes `data_structure` by `confidential` field
