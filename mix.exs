@@ -53,7 +53,7 @@ defmodule TdSe.Mixfile do
       {:ex_json_schema, "~> 0.5"},
       {:json_diff, "~> 0.1.0"},
       {:csv, "~> 2.0.0"},
-      {:td_cache, git: "https://github.com/Bluetab/td-cache.git", tag: "3.2.1"}
+      {:td_cache, git: "https://github.com/Bluetab/td-cache.git", tag: "3.5.1"}
     ]
   end
 
