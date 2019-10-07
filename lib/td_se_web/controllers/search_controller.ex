@@ -71,10 +71,15 @@ defmodule TdSeWeb.SearchController do
   defp render_search_results(%{results: results, total: total}, conn, %{"indexes" => indexes}) do
     global_search_results =
       Enum.reduce(indexes, [], fn {index, es_index}, acc ->
+        rs =
+          results
+          |> Enum.filter(&(&1["_index"] == es_index))
+          |> Enum.map(&Map.put(&1, "_index", index))
+
         result_map =
           %{}
           |> Map.put("index", index)
-          |> Map.put("results", Enum.filter(results, &(&1["_index"] == es_index)))
+          |> Map.put("results", rs)
 
         acc ++ [result_map]
       end)
