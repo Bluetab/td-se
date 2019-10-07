@@ -10,9 +10,9 @@ defmodule TdSe.GlobalSearch do
   alias TdSe.Search.Query
 
   @search_service Application.get_env(:td_se, :elasticsearch)[:search_service]
-  @data_structure_index Application.get_env(:td_se, :elastic_indexes)[:data_structure_index]
-  @business_concept_index Application.get_env(:td_se, :elastic_indexes)[:business_concept_index]
-  @ingest_index Application.get_env(:td_se, :elastic_indexes)[:ingest_index]
+  @data_structure_alias Application.get_env(:td_se, :elastic_indexes)[:data_structure_alias]
+  @business_concept_alias Application.get_env(:td_se, :elastic_indexes)[:business_concept_alias]
+  @ingest_alias Application.get_env(:td_se, :elastic_indexes)[:ingest_alias]
 
   @business_concept_permissions [
     :view_published_business_concepts,
@@ -27,13 +27,12 @@ defmodule TdSe.GlobalSearch do
     default_status_filter = create_default_filter_clause(params)
     query = create_query(params, default_status_filter)
 
-    search =
-      %{
-        from: page * size,
-        size: size,
-        query: query,
-        aggs: Aggregations.aggregation_terms()
-      }
+    search = %{
+      from: page * size,
+      size: size,
+      query: query,
+      aggs: Aggregations.aggregation_terms()
+    }
 
     do_search(params, search)
   end
@@ -41,6 +40,10 @@ defmodule TdSe.GlobalSearch do
   def search(params, %User{} = user, page, size) do
     permissions = user |> Permissions.get_domain_permissions()
     filter(params, permissions, page, size)
+  end
+
+  def translate_indexes(%{"indexes" => indexes} = params) do
+    Map.put(params, "indexes", @search_service.translate(indexes))
   end
 
   defp filter(_params, [], _page, _size), do: []
@@ -92,51 +95,51 @@ defmodule TdSe.GlobalSearch do
     %{bool: %{should: should_clause}}
   end
 
-  defp filter_by_index(@business_concept_index = index, permissions) do
+  defp filter_by_index({@business_concept_alias, _es_index} = index, permissions) do
     permissions
     |> Enum.filter(&filter_by_permission(&1, @business_concept_permissions))
     |> Enum.map(&entry_to_filter_clause(&1, index))
   end
 
-  defp filter_by_index(@ingest_index = index, permissions) do
+  defp filter_by_index({@ingest_alias, _es_index} = index, permissions) do
     permissions
     |> Enum.filter(&filter_by_permission(&1, @ingest_permissions))
     |> Enum.map(&entry_to_filter_clause(&1, index))
   end
 
-  defp filter_by_index(@data_structure_index = index, permissions) do
+  defp filter_by_index({@data_structure_alias, _es_index} = index, permissions) do
     permissions
     |> Enum.filter(&filter_by_permission(&1, @data_structure_permissions))
     |> Enum.map(&entry_to_filter_clause(&1, index))
   end
 
-  defp default_filter_for_index(@business_concept_index = index) do
+  defp default_filter_for_index({@business_concept_alias, es_index}) do
     %{
       bool: %{
         filter: [
-          %{terms: %{_index: [index]}},
+          %{terms: %{_index: [es_index]}},
           %{terms: %{status: BusinessConcept.default_status()}}
         ]
       }
     }
   end
 
-  defp default_filter_for_index(@ingest_index = index) do
+  defp default_filter_for_index({@ingest_alias, es_index}) do
     %{
       bool: %{
         filter: [
-          %{terms: %{_index: [index]}},
+          %{terms: %{_index: [es_index]}},
           %{terms: %{status: Ingest.default_status()}}
         ]
       }
     }
   end
 
-  defp default_filter_for_index(index) do
+  defp default_filter_for_index({_, es_index}) do
     %{
       bool: %{
         filter: [
-          %{terms: %{_index: [index]}}
+          %{terms: %{_index: [es_index]}}
         ]
       }
     }
@@ -144,9 +147,9 @@ defmodule TdSe.GlobalSearch do
 
   defp entry_to_filter_clause(
          %{resource_id: resource_id, permissions: permissions},
-         @business_concept_index = index
+         {@business_concept_alias, es_index}
        ) do
-    basic_clause = build_basic_clause(index, resource_id)
+    basic_clause = build_basic_clause(es_index, resource_id)
 
     confidential_clause =
       case Enum.member?(permissions, :manage_confidential_business_concepts) do
@@ -176,9 +179,9 @@ defmodule TdSe.GlobalSearch do
 
   defp entry_to_filter_clause(
          %{resource_id: resource_id, permissions: permissions},
-         @data_structure_index = index
+         {@data_structure_alias, es_index}
        ) do
-    basic_clause = build_basic_clause(index, resource_id)
+    basic_clause = build_basic_clause(es_index, resource_id)
 
     confidential_clause =
       case Enum.member?(permissions, :manage_confidential_structures) do
@@ -193,9 +196,9 @@ defmodule TdSe.GlobalSearch do
 
   defp entry_to_filter_clause(
          %{resource_id: resource_id, permissions: permissions},
-         @ingest_index = index
+         {@ingest_alias, es_index}
        ) do
-    basic_clause = build_basic_clause(index, resource_id)
+    basic_clause = build_basic_clause(es_index, resource_id)
 
     status =
       permissions
@@ -224,7 +227,8 @@ defmodule TdSe.GlobalSearch do
   end
 
   defp do_search(%{"indexes" => indexes}, search) do
-    %{results: results, total: total} = @search_service.search(indexes, search)
+    %{results: results, total: total} =
+      @search_service.search(Enum.map(indexes, fn {k, _v} -> k end), search)
 
     results =
       results

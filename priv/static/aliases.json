@@ -1,0 +1,7 @@
+{
+    "aliases": [
+        { "index" : "concepts_test", "alias" : "concepts_test_alias" },
+        { "index" : "structures_test", "alias" : "structures_test_alias" },
+        { "index" : "ingests_test", "alias" : "ingests_test_alias" }
+    ]
+}

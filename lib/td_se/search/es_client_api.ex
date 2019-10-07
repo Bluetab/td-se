@@ -99,4 +99,34 @@ defmodule TdSe.ESClientApi do
   def process_request_headers(_headers) do
     [{"Content-Type", "application/json"}]
   end
+
+  def aliases do
+    get("_aliases/")
+  end
+
+  def create_aliases do
+    aliases_request("add")
+  end
+
+  def delete_aliases do
+    aliases_request("remove")
+  end
+
+  def aliases_request(action) do
+    aliases =
+      :code.priv_dir(:td_se)
+      |> Path.join("static/aliases.json")
+      |> File.read!()
+      |> JSON.decode!()
+      |> Map.get("aliases")
+      |> Enum.map(&(Map.new() |> Map.put(action, &1)))
+
+    Map.new()
+    |> Map.put("actions", aliases)
+    |> post_aliases()
+  end
+
+  defp post_aliases(request) do
+    post("_aliases", request |> JSON.encode!())
+  end
 end

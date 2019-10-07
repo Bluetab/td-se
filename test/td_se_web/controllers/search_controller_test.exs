@@ -39,9 +39,9 @@ defmodule TdBgWeb.SearchControllerTest do
 
       assert Enum.all?(result_data, fn %{"index" => index, "results" => results} ->
                case index do
-                 "data_structure_test" -> length(results) == 4
-                 "business_concept_test" -> length(results) == 2
-                 "ingest_test" -> Enum.empty?(results)
+                 "structures_test_alias" -> length(results) == 4
+                 "concepts_test_alias" -> length(results) == 2
+                 "ingests_test_alias" -> Enum.empty?(results)
                end
              end)
     end
@@ -55,7 +55,7 @@ defmodule TdBgWeb.SearchControllerTest do
         post(
           conn,
           Routes.search_path(conn, :global_search),
-          indexes: [@all_indexes[:data_structure_index]]
+          indexes: [@all_indexes[:data_structure_alias]]
         )
 
       validate_resp_schema(conn, schema, "GlobalSearchResponse")
