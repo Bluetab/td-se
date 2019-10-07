@@ -46,8 +46,8 @@ config :td_se, :elasticsearch,
   type_name: "doc"
 
 config :td_se, :elastic_indexes,
-  data_structure_index: "data_structure",
-  business_concept_index: "business_concept",
-  ingest_index: "ingest"
+  data_structure_alias: "structures",
+  business_concept_alias: "concepts",
+  ingest_alias: "ingests"
 
 config :td_cache, redis_host: "localhost"

@@ -16,9 +16,9 @@ config :td_se, :elasticsearch,
   type_name: "doc"
 
 config :td_se, :elastic_indexes,
-  data_structure_index: "data_structure_test",
-  business_concept_index: "business_concept_test",
-  ingest_index: "ingest_test"
+  data_structure_alias: "structures_test_alias",
+  business_concept_alias: "concepts_test_alias",
+  ingest_alias: "ingests_test_alias"
 
 config :td_se, permission_resolver: TdSe.Permissions.MockPermissionResolver
 config :td_cache, redis_host: "redis"

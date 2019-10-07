@@ -50,7 +50,7 @@ defmodule TdSe.GlobalSearchTest do
 
       %{results: results, total: total} =
         GlobalSearch.search(
-          %{"indexes" => ["business_concept_test", "data_structure_test", "ingest_test"]},
+          %{"indexes" => [{"concepts_test_alias", "concepts_test"}, {"structures_test_alias", "structures_test"}, {"ingests_test_alias", "ingests_test"}]},
           user,
           0,
           10_000
@@ -61,12 +61,12 @@ defmodule TdSe.GlobalSearchTest do
     end
 
     @tag authenticated_user: %{user_name: "not_admin_user", permissions: @user_permissions}
-    test "search over a business_concept_test index with a not admin user", %{claims: claims} do
+    test "search over a concepts_test index with a not admin user", %{claims: claims} do
       user = Factory.build_user(claims)
 
       %{results: results, total: total} =
         GlobalSearch.search(
-          %{"indexes" => ["business_concept_test"]},
+          %{"indexes" => [{"concepts_test_alias", "concepts_test"}]},
           user,
           0,
           10_000
@@ -77,7 +77,7 @@ defmodule TdSe.GlobalSearchTest do
     end
 
     @tag authenticated_user: %{user_name: "not_admin_user", permissions: @user_permissions}
-    test "search over a data_structure_test index with a not admin user using a query", %{
+    test "search over a structures_test index with a not admin user using a query", %{
       claims: claims
     } do
       user = Factory.build_user(claims)
@@ -86,7 +86,7 @@ defmodule TdSe.GlobalSearchTest do
         GlobalSearch.search(
           %{
             "query" => "Stru",
-            "indexes" => ["business_concept_test", "data_structure_test"]
+            "indexes" => [{"concepts_test_alias", "concepts_test"}, {"structures_test_alias", "structures_test"}, {"ingests_test_alias", "ingests_test"}]
           },
           user,
           0,
@@ -105,7 +105,13 @@ defmodule TdSe.GlobalSearchTest do
 
       %{results: results, total: total} =
         GlobalSearch.search(
-          %{"indexes" => ["business_concept_test", "data_structure_test", "ingest_test"]},
+          %{
+            "indexes" => [
+              {"concepts_test_alias", "concepts_test"},
+              {"structures_test_alias", "structures_test"},
+              {"ingests_test_alias", "ingests_test"}
+            ]
+          },
           user,
           0,
           10_000

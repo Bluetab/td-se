@@ -1,7 +1,7 @@
 {
     "bulk_list": [
         {
-            "index_name": "business_concept_test", 
+            "index_name": "concepts_test", 
             "id": "1", 
             "search_fields": {
                 "domain_ids": [2, 3],
@@ -15,7 +15,7 @@
             }
         },
         {
-            "index_name": "business_concept_test",
+            "index_name": "concepts_test",
             "id": "2",
             "search_fields": {
                 "domain_ids": [2],
@@ -29,7 +29,7 @@
             }
         },
         {
-            "index_name": "business_concept_test",
+            "index_name": "concepts_test",
             "id": "3",
             "search_fields": {
                 "domain_ids": [2],
@@ -43,7 +43,7 @@
             }
         },
         {
-            "index_name": "business_concept_test",
+            "index_name": "concepts_test",
             "id": "4",
             "search_fields": {
                 "domain_ids": [1, 2],
@@ -57,7 +57,7 @@
             }
         },
         {
-            "index_name": "data_structure_test",
+            "index_name": "structures_test",
             "id": "5",
             "search_fields": {
                 "domain_ids": [1],
@@ -68,7 +68,7 @@
             }
         },
         {
-            "index_name": "data_structure_test",
+            "index_name": "structures_test",
             "id": "6",
             "search_fields": {
                 "domain_ids": [4, 5],
@@ -79,7 +79,7 @@
             }
         },
         {
-            "index_name": "data_structure_test",
+            "index_name": "structures_test",
             "id": "7",
             "search_fields": {
                 "domain_ids": [1, 2],
@@ -90,7 +90,7 @@
             }           
         },
         {
-            "index_name": "data_structure_test",
+            "index_name": "structures_test",
             "id": "8",
             "search_fields": {
                 "domain_ids": [1, 2],
@@ -101,7 +101,7 @@
             }           
         },
         {
-            "index_name": "ingest_test", 
+            "index_name": "ingests_test", 
             "id": "9", 
             "search_fields": {
                 "domain_ids": [2, 3],

@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+## Changed
+
+- [TD-1721] Use aliases instead of indexes on search query
+
 ## [3.6.0] 2019-09-16
 
 ## Changed

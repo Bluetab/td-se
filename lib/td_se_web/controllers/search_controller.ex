@@ -32,7 +32,12 @@ defmodule TdSeWeb.SearchController do
 
   def global_search(conn, params) do
     user = conn.assigns[:current_resource]
-    params = add_indexes_to_params(params, Map.get(params, "indexes", nil))
+
+    params =
+      params
+      |> with_indexes(Map.get(params, "indexes", nil))
+      |> GlobalSearch.translate_indexes()
+
     user |> do_search(params, 0, 10_000) |> render_search_results(conn, params)
   end
 
@@ -45,17 +50,17 @@ defmodule TdSeWeb.SearchController do
     |> GlobalSearch.search(user, page, size)
   end
 
-  defp add_indexes_to_params(params, nil) do
-    build_params(params)
+  defp with_indexes(params, nil) do
+    default_indexes(params)
   end
 
-  defp add_indexes_to_params(params, []) do
-    build_params(params)
+  defp with_indexes(params, []) do
+    default_indexes(params)
   end
 
-  defp add_indexes_to_params(params, _), do: params
+  defp with_indexes(params, _), do: params
 
-  defp build_params(params) do
+  defp default_indexes(params) do
     index_values =
       @all_indexes
       |> Enum.map(fn {_k, v} -> v end)
@@ -65,13 +70,11 @@ defmodule TdSeWeb.SearchController do
 
   defp render_search_results(%{results: results, total: total}, conn, %{"indexes" => indexes}) do
     global_search_results =
-      indexes
-      |> Enum.uniq()
-      |> Enum.reduce([], fn index, acc ->
+      Enum.reduce(indexes, [], fn {index, es_index}, acc ->
         result_map =
           %{}
           |> Map.put("index", index)
-          |> Map.put("results", Enum.filter(results, &(&1["_index"] == index)))
+          |> Map.put("results", Enum.filter(results, &(&1["_index"] == es_index)))
 
         acc ++ [result_map]
       end)

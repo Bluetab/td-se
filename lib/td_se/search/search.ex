@@ -13,4 +13,19 @@ defmodule TdSe.Search do
         error
     end
   end
+
+  def translate(indexes) do
+    response = ESClientApi.aliases()
+
+    case response do
+      {:ok, %HTTPoison.Response{body: body}} ->
+          body
+          |> Enum.map(fn {k, v} -> {k, v |> Map.get("aliases", %{}) |> Map.keys() |> Enum.at(0)} end)
+          |> Enum.filter(fn {_k, v} -> v && v in indexes end)
+          |> Enum.into(%{}, fn {k, v} -> {v, k} end)
+
+      {:ok, error} ->
+        Map.get(error, :body)
+    end
+  end
 end
