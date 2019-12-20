@@ -135,6 +135,17 @@ defmodule TdSe.GlobalSearch do
     }
   end
 
+  defp default_filter_for_index({@data_structure_alias, es_index}) do
+    %{
+      bool: %{
+        filter: [
+          %{terms: %{_index: [es_index]}},
+          %{bool: %{must_not: %{exists: %{field: "deleted_at"}}}}
+        ]
+      }
+    }
+  end
+
   defp default_filter_for_index({_, es_index}) do
     %{
       bool: %{

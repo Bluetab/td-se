@@ -47,6 +47,29 @@ defmodule TdBgWeb.SearchControllerTest do
     end
 
     @tag :admin_authenticated
+    test "Search all structures omitting deleted structures", %{
+      conn: conn,
+      swagger_schema: schema
+    } do
+      conn =
+        post(
+          conn,
+          Routes.search_path(conn, :global_search)
+        )
+
+      validate_resp_schema(conn, schema, "GlobalSearchResponse")
+      result_data = json_response(conn, 200)["data"]
+      assert length(result_data) == 3
+
+      structure_results =
+        result_data
+        |> Enum.find(fn %{"index" => index} -> index == "structures_test_alias" end)
+        |> Map.get("results")
+
+      assert Enum.all?(structure_results, &is_nil(Map.get(&1, "deleted_at")))
+    end
+
+    @tag :admin_authenticated
     test "Search only queried indexes when admin is authenticated", %{
       conn: conn,
       swagger_schema: schema
