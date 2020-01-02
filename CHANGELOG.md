@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased] 
+
+## Changed
+
+- [TD-2271] Filter deleted structures on search
+
 ## [3.8.0] 2019-10-14
 
 ## Changed
