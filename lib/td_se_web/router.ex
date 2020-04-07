@@ -1,10 +1,6 @@
 defmodule TdSeWeb.Router do
   use TdSeWeb, :router
 
-  @endpoint_url "#{Application.get_env(:td_se, TdSeWeb.Endpoint)[:url][:host]}:#{
-    Application.get_env(:td_se, TdSeWeb.Endpoint)[:url][:port]
-  }"
-
   pipeline :api do
     plug(TdSe.Auth.Pipeline.Unsecure)
     plug(:accepts, ["json"])
@@ -35,12 +31,11 @@ defmodule TdSeWeb.Router do
 
   def swagger_info do
     %{
-      schemes: ["http"],
+      schemes: ["http", "https"],
       info: %{
-        version: "1.0",
-        title: "TdSe"
+        version: "3.10",
+        title: "Truedat Search Service"
       },
-      host: @endpoint_url,
       basePath: "/api",
       securityDefinitions: %{
         bearer: %{
