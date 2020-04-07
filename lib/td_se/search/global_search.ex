@@ -10,9 +10,9 @@ defmodule TdSe.GlobalSearch do
   alias TdSe.Search.Query
 
   @search_service Application.get_env(:td_se, :elasticsearch)[:search_service]
-  @data_structure_alias Application.get_env(:td_se, :elastic_indexes)[:data_structure_alias]
-  @business_concept_alias Application.get_env(:td_se, :elastic_indexes)[:business_concept_alias]
-  @ingest_alias Application.get_env(:td_se, :elastic_indexes)[:ingest_alias]
+  @data_structure_alias Application.get_env(:td_se, :indices)[:data_structure_alias]
+  @business_concept_alias Application.get_env(:td_se, :indices)[:business_concept_alias]
+  @ingest_alias Application.get_env(:td_se, :indices)[:ingest_alias]
 
   @business_concept_permissions [
     :view_published_business_concepts,
@@ -38,7 +38,7 @@ defmodule TdSe.GlobalSearch do
   end
 
   def search(params, %User{} = user, page, size) do
-    permissions = user |> Permissions.get_domain_permissions()
+    permissions = Permissions.get_domain_permissions(user)
     filter(params, permissions, page, size)
   end
 
@@ -49,7 +49,7 @@ defmodule TdSe.GlobalSearch do
   defp filter(_params, [], _page, _size), do: []
 
   defp filter(params, [_h | _t] = permissions, page, size) do
-    filter = permissions |> create_filter_clause(params)
+    filter = create_filter_clause(permissions, params)
     query = create_query(params, filter)
 
     search = %{

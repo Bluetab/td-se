@@ -8,7 +8,7 @@ defmodule TdSeWeb.SearchController do
   alias TdSeWeb.SearchResultsView
   alias TdSeWeb.SwaggerDefinitions
 
-  @all_indexes Application.get_env(:td_se, :elastic_indexes)
+  @indices Application.get_env(:td_se, :indices)
 
   def swagger_definitions do
     SwaggerDefinitions.global_search_definitions()
@@ -61,11 +61,8 @@ defmodule TdSeWeb.SearchController do
   defp with_indexes(params, _), do: params
 
   defp default_indexes(params) do
-    index_values =
-      @all_indexes
-      |> Enum.map(fn {_k, v} -> v end)
-
-    Map.put(params, "indexes", index_values)
+    indices = Enum.map(@indices, fn {_k, v} -> v end)
+    Map.put(params, "indexes", indices)
   end
 
   defp render_search_results(%{results: results, total: total}, conn, %{"indexes" => indexes}) do
