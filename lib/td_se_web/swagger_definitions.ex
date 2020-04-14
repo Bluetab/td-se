@@ -57,7 +57,7 @@ defmodule TdSeWeb.SwaggerDefinitions do
 
           example(%{
             query: "searchterm",
-            indexes: ["business_concept", "data_structure", "ingest"]
+            indexes: ["concepts", "structures", "ingests"]
           })
         end
     }
