@@ -7,7 +7,7 @@ defmodule TdSe.GlobalSearchTest do
   alias TdSe.TestDataHelper
   use TdSeWeb.ConnCase
 
-  @all_indexes Application.get_env(:td_se, :elastic_indexes)
+  @indices Application.get_env(:td_se, :indices)
   @user_permissions [
     %{
       permissions: [
@@ -38,7 +38,7 @@ defmodule TdSe.GlobalSearchTest do
   setup do
     # Delete elastic content
     query = %{query: %{match_all: %{}}}
-    TestDataHelper.clean_docs_from_indexes(@all_indexes, query)
+    TestDataHelper.clean_docs_from_indexes(@indices, query)
     TestDataHelper.bulk_test_data("static/bulk_content.json")
     :ok
   end
@@ -50,7 +50,13 @@ defmodule TdSe.GlobalSearchTest do
 
       %{results: results, total: total} =
         GlobalSearch.search(
-          %{"indexes" => [{"concepts_test_alias", "concepts_test"}, {"structures_test_alias", "structures_test"}, {"ingests_test_alias", "ingests_test"}]},
+          %{
+            "indexes" => [
+              {"concepts_test_alias", "concepts_test"},
+              {"structures_test_alias", "structures_test"},
+              {"ingests_test_alias", "ingests_test"}
+            ]
+          },
           user,
           0,
           10_000
@@ -86,7 +92,11 @@ defmodule TdSe.GlobalSearchTest do
         GlobalSearch.search(
           %{
             "query" => "Stru",
-            "indexes" => [{"concepts_test_alias", "concepts_test"}, {"structures_test_alias", "structures_test"}, {"ingests_test_alias", "ingests_test"}]
+            "indexes" => [
+              {"concepts_test_alias", "concepts_test"},
+              {"structures_test_alias", "structures_test"},
+              {"ingests_test_alias", "ingests_test"}
+            ]
           },
           user,
           0,

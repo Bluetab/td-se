@@ -9,7 +9,8 @@ defmodule TdSeWeb.SearchResultsView do
   def render("search_results.json", %{search_results: search_results}) do
     %{
       index: Map.get(search_results, "index"),
-      results: render_many(Map.get(search_results, "results"), SearchResultsView, "search_result.json")
+      results:
+        render_many(Map.get(search_results, "results"), SearchResultsView, "search_result.json")
     }
   end
 

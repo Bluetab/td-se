@@ -2,21 +2,22 @@ defmodule TdBgWeb.SearchControllerTest do
   @moduledoc false
   use ExUnit.Case, async: false
   use PhoenixSwagger.SchemaTest, "priv/static/swagger.json"
+  use TdSeWeb.ConnCase
+
   alias TdSe.Permissions.MockPermissionResolver
   alias TdSe.TestDataHelper
-  use TdSeWeb.ConnCase
+
+  @indices Application.get_env(:td_se, :indices)
 
   setup_all do
     start_supervised(MockPermissionResolver)
     :ok
   end
 
-  @all_indexes Application.get_env(:td_se, :elastic_indexes)
-
   setup %{conn: conn} do
     # Delete elastic content
     query = %{query: %{match_all: %{}}}
-    TestDataHelper.clean_docs_from_indexes(@all_indexes, query)
+    TestDataHelper.clean_docs_from_indexes(@indices, query)
     TestDataHelper.bulk_test_data("static/bulk_content.json")
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end
@@ -27,17 +28,15 @@ defmodule TdBgWeb.SearchControllerTest do
       conn: conn,
       swagger_schema: schema
     } do
-      conn =
-        post(
-          conn,
-          Routes.search_path(conn, :global_search)
-        )
+      assert %{"data" => data} =
+               conn
+               |> post(Routes.search_path(conn, :global_search))
+               |> validate_resp_schema(schema, "GlobalSearchResponse")
+               |> json_response(:ok)
 
-      validate_resp_schema(conn, schema, "GlobalSearchResponse")
-      result_data = json_response(conn, 200)["data"]
-      assert length(result_data) == 3
+      assert length(data) == 3
 
-      assert Enum.all?(result_data, fn %{"index" => index, "results" => results} ->
+      assert Enum.all?(data, fn %{"index" => index, "results" => results} ->
                case index do
                  "structures_test_alias" -> length(results) == 4
                  "concepts_test_alias" -> length(results) == 2
@@ -51,18 +50,16 @@ defmodule TdBgWeb.SearchControllerTest do
       conn: conn,
       swagger_schema: schema
     } do
-      conn =
-        post(
-          conn,
-          Routes.search_path(conn, :global_search)
-        )
+      assert %{"data" => data} =
+               conn
+               |> post(Routes.search_path(conn, :global_search))
+               |> validate_resp_schema(schema, "GlobalSearchResponse")
+               |> json_response(:ok)
 
-      validate_resp_schema(conn, schema, "GlobalSearchResponse")
-      result_data = json_response(conn, 200)["data"]
-      assert length(result_data) == 3
+      assert length(data) == 3
 
       structure_results =
-        result_data
+        data
         |> Enum.find(fn %{"index" => index} -> index == "structures_test_alias" end)
         |> Map.get("results")
 
@@ -74,20 +71,17 @@ defmodule TdBgWeb.SearchControllerTest do
       conn: conn,
       swagger_schema: schema
     } do
-      conn =
-        post(
-          conn,
-          Routes.search_path(conn, :global_search),
-          indexes: [@all_indexes[:data_structure_alias]]
-        )
+      assert %{"data" => data} =
+               conn
+               |> post(
+                 Routes.search_path(conn, :global_search),
+                 indexes: [@indices[:data_structure_alias]]
+               )
+               |> validate_resp_schema(schema, "GlobalSearchResponse")
+               |> json_response(:ok)
 
-      validate_resp_schema(conn, schema, "GlobalSearchResponse")
-      result_data = json_response(conn, 200)["data"]
-      assert length(result_data) == 1
-
-      assert Enum.all?(result_data, fn index_result ->
-               length(Map.get(index_result, "results")) == 4
-             end)
+      assert [%{"results" => results}] = data
+      assert length(results) == 4
     end
   end
 end
