@@ -7,7 +7,7 @@ defmodule TdSe.Mixfile do
       app: :td_se,
       version:
         case System.get_env("APP_VERSION") do
-          nil -> "3.20.0-local"
+          nil -> "4.0.0-local"
           v -> v
         end,
       elixir: "~> 1.10",
@@ -50,12 +50,12 @@ defmodule TdSe.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:phoenix, "~> 1.4.16"},
-      {:plug_cowboy, "~> 2.0"},
+      {:phoenix, "~> 1.5.0"},
+      {:plug_cowboy, "~> 2.1"},
       {:jason, "~> 1.0"},
       {:gettext, "~> 0.11"},
       {:httpoison, "~> 1.6"},
-      {:credo, "~> 1.2", only: [:dev, :test], runtime: false},
+      {:credo, "~> 1.4", only: [:dev, :test], runtime: false},
       {:guardian, "~> 2.0"},
       {:corsica, "~> 1.0"},
       {:phoenix_swagger, "~> 0.8.2"},

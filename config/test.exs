@@ -13,3 +13,5 @@ config :td_se, :indices,
   ingest_alias: "ingests_test_alias"
 
 config :td_se, permission_resolver: TdSe.Permissions.MockPermissionResolver
+
+config :td_cache, redis_host: "redis", port: 6380
