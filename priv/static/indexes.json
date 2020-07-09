@@ -15,15 +15,11 @@
                     "name": {
                         "type": "text"
                     },
-                    "content": {
-                        "properties": {
-                            "_confidential": {
-                                "type": "text",
-                                "fields": {
-                                    "raw": {
-                                        "type": "keyword"
-                                    }
-                                }
+                    "confidential": {
+                        "type": "boolean",
+                        "fields": {
+                            "raw": {
+                                "type": "keyword"
                             }
                         }
                     }

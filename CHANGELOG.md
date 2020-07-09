@@ -1,5 +1,11 @@
 # Changelog
 
+## [4.0.1] 2020-07-09
+
+### Fixed
+
+- [TD-2815] Confidential filter was using old mappings producing empty results in concepts search
+
 ## [4.0.0] 2020-07-01
 
 ### Changed
