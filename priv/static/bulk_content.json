@@ -9,9 +9,7 @@
                 "name": "My Concept 1",
                 "description": "My Desc",
                 "id": 1,
-                "content": {
-                    "_confidential": "No"
-                }
+                "confidential": false
             }
         },
         {
@@ -23,9 +21,7 @@
                 "name": "My Concept 2",
                 "description": "My Desc",
                 "id": 2,
-                "content": {
-                    "_confidential": "No"
-                }
+                "confidential": false
             }
         },
         {
@@ -37,9 +33,7 @@
                 "name": "My Concept 3",
                 "description": "My Desc",
                 "id": 3,
-                "content": {
-                    "_confidential": "No"
-                }
+                "confidential": false
             }
         },
         {
@@ -51,9 +45,7 @@
                 "name": "My Concept 4",
                 "description": "My Desc",
                 "id": 4,
-                "content": {
-                    "_confidential": "Si"
-                }
+                "confidential": true
             }
         },
         {
