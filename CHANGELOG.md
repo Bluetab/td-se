@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+
+- [TD-2980] Add path to search results
+
 ## [4.0.1] 2020-07-09
 
 ### Fixed

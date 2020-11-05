@@ -19,7 +19,8 @@ defmodule TdSeWeb.SearchResultsView do
       id: Map.get(search_results, "id"),
       name: Map.get(search_results, "name"),
       description: Map.get(search_results, "description"),
-      index: Map.get(search_results, "_index")
+      index: Map.get(search_results, "_index"),
+      path: Map.get(search_results, "path")
     }
   end
 end
