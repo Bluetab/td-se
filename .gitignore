@@ -26,3 +26,4 @@ priv/static/swagger.json
 # business concept content schema definition for testing
 bc_schema.test
 local
+config/local.exs

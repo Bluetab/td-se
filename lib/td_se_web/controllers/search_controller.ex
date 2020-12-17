@@ -1,6 +1,6 @@
 defmodule TdSeWeb.SearchController do
   @moduledoc """
-    Controller module for global search engine.
+  Controller module for global search engine.
   """
   use PhoenixSwagger
   use TdSeWeb, :controller
@@ -8,7 +8,7 @@ defmodule TdSeWeb.SearchController do
   alias TdSeWeb.SearchResultsView
   alias TdSeWeb.SwaggerDefinitions
 
-  @indices Application.get_env(:td_se, :indices)
+  @indices Application.compile_env(:td_se, :indices)
 
   def swagger_definitions do
     SwaggerDefinitions.global_search_definitions()
