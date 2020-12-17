@@ -1,6 +1,6 @@
 defmodule TdSe.Permissions.MockPermissionResolver do
   @moduledoc """
-    A mock permissions resolver
+  A mock permissions resolver
   """
   use Agent
   alias Poision

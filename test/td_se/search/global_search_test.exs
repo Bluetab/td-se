@@ -7,7 +7,7 @@ defmodule TdSe.GlobalSearchTest do
   alias TdSe.TestDataHelper
   use TdSeWeb.ConnCase
 
-  @indices Application.get_env(:td_se, :indices)
+  @indices Application.compile_env(:td_se, :indices)
   @user_permissions [
     %{
       permissions: [

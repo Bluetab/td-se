@@ -21,19 +21,19 @@ defmodule TdSeWeb.Router do
 
   scope "/api", TdSeWeb do
     pipe_through([:api])
-    get "/ping", PingController, :ping
+    get("/ping", PingController, :ping)
   end
 
   scope "/api", TdSeWeb do
     pipe_through([:api, :api_secure, :api_authorized])
-    post "/global_search", SearchController, :global_search
+    post("/global_search", SearchController, :global_search)
   end
 
   def swagger_info do
     %{
       schemes: ["http", "https"],
       info: %{
-        version: "3.10",
+        version: Application.spec(:td_se, :vsn),
         title: "Truedat Search Service"
       },
       basePath: "/api",

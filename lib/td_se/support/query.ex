@@ -1,6 +1,6 @@
 defmodule TdSe.Search.Query do
   @moduledoc """
-    Helper module to manipulate queries.
+  Helper module to manipulate queries.
   """
 
   def add_query_wildcard(query) do

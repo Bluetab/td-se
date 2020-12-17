@@ -1,6 +1,6 @@
 defmodule TdSe.GlobalSearch do
   @moduledoc """
-    Helper module to construct business concept search queries.
+  Helper module to construct business concept search queries.
   """
   alias TdSe.Accounts.User
   alias TdSe.BusinessConcepts.BusinessConcept
@@ -9,10 +9,9 @@ defmodule TdSe.GlobalSearch do
   alias TdSe.Search.Aggregations
   alias TdSe.Search.Query
 
-  @search_service Application.get_env(:td_se, :elasticsearch)[:search_service]
-  @data_structure_alias Application.get_env(:td_se, :indices)[:data_structure_alias]
-  @business_concept_alias Application.get_env(:td_se, :indices)[:business_concept_alias]
-  @ingest_alias Application.get_env(:td_se, :indices)[:ingest_alias]
+  @data_structure_alias Application.compile_env(:td_se, :indices)[:data_structure_alias]
+  @business_concept_alias Application.compile_env(:td_se, :indices)[:business_concept_alias]
+  @ingest_alias Application.compile_env(:td_se, :indices)[:ingest_alias]
 
   @business_concept_permissions [
     :view_published_business_concepts,
@@ -43,7 +42,7 @@ defmodule TdSe.GlobalSearch do
   end
 
   def translate_indexes(%{"indexes" => indexes} = params) do
-    Map.put(params, "indexes", @search_service.translate(indexes))
+    Map.put(params, "indexes", search_service().translate(indexes))
   end
 
   defp filter(_params, [], _page, _size), do: []
@@ -239,7 +238,7 @@ defmodule TdSe.GlobalSearch do
 
   defp do_search(%{"indexes" => indexes}, search) do
     %{results: results, total: total} =
-      @search_service.search(Enum.map(indexes, fn {k, _v} -> k end), search)
+      search_service().search(Enum.map(indexes, fn {k, _v} -> k end), search)
 
     results =
       results
@@ -249,4 +248,6 @@ defmodule TdSe.GlobalSearch do
 
     %{results: results, total: total}
   end
+
+  defp search_service, do: Application.get_env(:td_se, :elasticsearch)[:search_service]
 end

@@ -1,6 +1,6 @@
 defmodule TdSe.Search.Aggregations do
   @moduledoc """
-    Aggregations for elasticsearch
+  Aggregations for elasticsearch
   """
 
   def aggregation_terms do

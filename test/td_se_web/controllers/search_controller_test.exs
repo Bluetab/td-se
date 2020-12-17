@@ -7,7 +7,7 @@ defmodule TdBgWeb.SearchControllerTest do
   alias TdSe.Permissions.MockPermissionResolver
   alias TdSe.TestDataHelper
 
-  @indices Application.get_env(:td_se, :indices)
+  @indices Application.compile_env(:td_se, :indices)
 
   setup_all do
     start_supervised(MockPermissionResolver)
