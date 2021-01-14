@@ -1,11 +1,9 @@
 defmodule TdSe.GlobalSearchTest do
-  @moduledoc false
-  use ExUnit.Case, async: false
-  alias TdSe.Factory
+  use TdSeWeb.ConnCase
+
   alias TdSe.GlobalSearch
   alias TdSe.Permissions.MockPermissionResolver
   alias TdSe.TestDataHelper
-  use TdSeWeb.ConnCase
 
   @indices Application.compile_env(:td_se, :indices)
   @user_permissions [
@@ -44,10 +42,9 @@ defmodule TdSe.GlobalSearchTest do
   end
 
   describe "Search test" do
-    @tag authenticated_user: %{user_name: "not_admin_user", permissions: @user_permissions}
-    test "search over the indexes with a not admin user has permissions", %{claims: claims} do
-      user = Factory.build_user(claims)
-
+    @tag authenticated_user: "non_admin_user"
+    @tag permissions: @user_permissions
+    test "search over the indexes with a non admin user has permissions", %{claims: claims} do
       %{results: results, total: total} =
         GlobalSearch.search(
           %{
@@ -57,7 +54,7 @@ defmodule TdSe.GlobalSearchTest do
               {"ingests_test_alias", "ingests_test"}
             ]
           },
-          user,
+          claims,
           0,
           10_000
         )
@@ -66,14 +63,13 @@ defmodule TdSe.GlobalSearchTest do
       assert length(results) == 2
     end
 
-    @tag authenticated_user: %{user_name: "not_admin_user", permissions: @user_permissions}
-    test "search over a concepts_test index with a not admin user", %{claims: claims} do
-      user = Factory.build_user(claims)
-
+    @tag authenticated_user: "non_admin_user"
+    @tag permissions: @user_permissions
+    test "search over a concepts_test index with a non admin user", %{claims: claims} do
       %{results: results, total: total} =
         GlobalSearch.search(
           %{"indexes" => [{"concepts_test_alias", "concepts_test"}]},
-          user,
+          claims,
           0,
           10_000
         )
@@ -82,12 +78,11 @@ defmodule TdSe.GlobalSearchTest do
       assert length(results) == 1
     end
 
-    @tag authenticated_user: %{user_name: "not_admin_user", permissions: @user_permissions}
-    test "search over a structures_test index with a not admin user using a query", %{
+    @tag authenticated_user: "non_admin_user"
+    @tag permissions: @user_permissions
+    test "search over a structures_test index with a non admin user using a query", %{
       claims: claims
     } do
-      user = Factory.build_user(claims)
-
       %{results: results, total: total} =
         GlobalSearch.search(
           %{
@@ -98,7 +93,7 @@ defmodule TdSe.GlobalSearchTest do
               {"ingests_test_alias", "ingests_test"}
             ]
           },
-          user,
+          claims,
           0,
           10_000
         )
@@ -111,8 +106,6 @@ defmodule TdSe.GlobalSearchTest do
     @tag :admin_authenticated
     test "search with an admin user should fetch all results filtered by status published in ingests and concepts",
          %{claims: claims} do
-      user = Factory.build_user(claims)
-
       %{results: results, total: total} =
         GlobalSearch.search(
           %{
@@ -122,7 +115,7 @@ defmodule TdSe.GlobalSearchTest do
               {"ingests_test_alias", "ingests_test"}
             ]
           },
-          user,
+          claims,
           0,
           10_000
         )

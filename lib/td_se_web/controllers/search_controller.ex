@@ -31,23 +31,23 @@ defmodule TdSeWeb.SearchController do
   end
 
   def global_search(conn, params) do
-    user = conn.assigns[:current_resource]
+    claims = conn.assigns[:current_resource]
 
     params =
       params
       |> with_indexes(Map.get(params, "indexes", nil))
       |> GlobalSearch.translate_indexes()
 
-    user |> do_search(params, 0, 10_000) |> render_search_results(conn, params)
+    claims |> do_search(params, 0, 10_000) |> render_search_results(conn, params)
   end
 
-  defp do_search(user, search_params, page, size) do
+  defp do_search(claims, search_params, page, size) do
     page = search_params |> Map.get("page", page)
     size = search_params |> Map.get("size", size)
 
     search_params
     |> Map.drop(["page", "size"])
-    |> GlobalSearch.search(user, page, size)
+    |> GlobalSearch.search(claims, page, size)
   end
 
   defp with_indexes(params, nil) do
