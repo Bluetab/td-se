@@ -2,7 +2,8 @@ defmodule TdSe.GlobalSearch do
   @moduledoc """
   Helper module to construct business concept search queries.
   """
-  alias TdSe.Accounts.User
+
+  alias TdSe.Auth.Claims
   alias TdSe.BusinessConcepts.BusinessConcept
   alias TdSe.Ingests.Ingest
   alias TdSe.Permissions
@@ -20,9 +21,9 @@ defmodule TdSe.GlobalSearch do
   @ingest_permissions [:view_published_ingests]
   @data_structure_permissions [:view_data_structure]
 
-  def search(params, user, page \\ 0, size \\ 50)
+  def search(params, claims, page \\ 0, size \\ 50)
 
-  def search(params, %User{is_admin: true}, page, size) do
+  def search(params, %Claims{role: "admin"}, page, size) do
     default_status_filter = create_default_filter_clause(params)
     query = create_query(params, default_status_filter)
 
@@ -36,8 +37,8 @@ defmodule TdSe.GlobalSearch do
     do_search(params, search)
   end
 
-  def search(params, %User{} = user, page, size) do
-    permissions = Permissions.get_domain_permissions(user)
+  def search(params, %Claims{} = claims, page, size) do
+    permissions = Permissions.get_domain_permissions(claims)
     filter(params, permissions, page, size)
   end
 
