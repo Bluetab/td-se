@@ -43,7 +43,7 @@ defmodule TdSe.GlobalSearch do
   end
 
   def translate_indexes(%{"indexes" => indexes} = params) do
-    Map.put(params, "indexes", search_service().translate(indexes))
+    Map.put(params, "indexes",  TdSe.Search.translate(indexes))
   end
 
   defp filter(_params, [], _page, _size), do: []
@@ -239,7 +239,7 @@ defmodule TdSe.GlobalSearch do
 
   defp do_search(%{"indexes" => indexes}, search) do
     %{results: results, total: total} =
-      search_service().search(Enum.map(indexes, fn {k, _v} -> k end), search)
+      TdSe.Search.search(Enum.map(indexes, fn {k, _v} -> k end), search)
 
     results =
       results
@@ -249,6 +249,4 @@ defmodule TdSe.GlobalSearch do
 
     %{results: results, total: total}
   end
-
-  defp search_service, do: Application.get_env(:td_se, :elasticsearch)[:search_service]
 end

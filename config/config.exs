@@ -44,18 +44,15 @@ config :td_se, :phoenix_swagger,
     "priv/static/swagger.json" => [router: TdSeWeb.Router]
   }
 
-config :td_se, :elasticsearch,
-  search_service: TdSe.Search,
-  es_host: "http://elastic",
-  es_port: 9200,
-  type_name: "doc"
-
 config :td_se, :indices,
   data_structure_alias: "structures",
   business_concept_alias: "concepts",
   ingest_alias: "ingests"
 
 config :td_cache, redis_host: "redis"
+
+# Import Elasticsearch config
+import_config "elastic.exs"
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
