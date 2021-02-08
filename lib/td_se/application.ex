@@ -9,9 +9,9 @@ defmodule TdSe.Application do
     # Define workers and child supervisors to be supervised
     children = [
       # Start the endpoint when the application starts
-      TdSeWeb.Endpoint
-      # Start your own worker by calling: TdSe.Worker.start_link(arg1, arg2, arg3)
-      # worker(TdSe.Worker, [arg1, arg2, arg3]),
+      TdSeWeb.Endpoint,
+      # Elasticsearch worker
+      TdSe.Search.Cluster
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

@@ -61,6 +61,9 @@ defmodule TdSe.Mixfile do
       {:phoenix_swagger, "~> 0.8.2"},
       {:ex_json_schema, "~> 0.7.3"},
       {:json_diff, "~> 0.1.0"},
+      {:elasticsearch,
+       git: "https://github.com/Bluetab/elasticsearch-elixir.git",
+       branch: "feature/bulk-index-action"},
       {:td_cache, git: "https://github.com/Bluetab/td-cache.git", tag: "4.12.1"}
     ]
   end

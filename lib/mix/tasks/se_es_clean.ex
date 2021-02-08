@@ -5,12 +5,12 @@ defmodule Mix.Tasks.Se.EsClean do
 
   use Mix.Task
 
-  alias TdSe.ESClientApi
+  alias ElasticsearchSupport
 
   @shortdoc "Create test mappings in elasticsearch"
   def run(__args) do
     Mix.Task.run("app.start")
-    ESClientApi.delete_indexes()
-    ESClientApi.delete_aliases()
+    ElasticsearchSupport.delete_aliases()
+    ElasticsearchSupport.delete_indexes()
   end
 end
