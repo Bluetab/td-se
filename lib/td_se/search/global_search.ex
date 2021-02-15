@@ -88,9 +88,7 @@ defmodule TdSe.GlobalSearch do
   end
 
   defp create_default_filter_clause(%{"indexes" => indexes}) do
-    should_clause =
-      indexes
-      |> Enum.map(&default_filter_for_index(&1))
+    should_clause = Enum.map(indexes, &default_filter_for_index(&1))
 
     %{bool: %{should: should_clause}}
   end

@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+
+- [TD-3265] Retrieve business concept id on search
+  
 ## [4.13.0] 2021-02-08
 
 ### Added

@@ -15,12 +15,9 @@ defmodule TdSeWeb.SearchResultsView do
   end
 
   def render("search_result.json", %{search_results: search_results}) do
-    %{
-      id: Map.get(search_results, "id"),
-      name: Map.get(search_results, "name"),
-      description: Map.get(search_results, "description"),
-      index: Map.get(search_results, "_index"),
-      path: Map.get(search_results, "path")
-    }
+    index = Map.get(search_results, "_index")
+    search_results
+    |> Map.take(["id", "name", "description", "path", "business_concept_id"])
+    |> Map.put("index", index)
   end
 end
