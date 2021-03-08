@@ -58,7 +58,7 @@ defmodule TdSe.Mixfile do
       {:credo, "~> 1.4", only: [:dev, :test], runtime: false},
       {:guardian, "~> 2.0"},
       {:corsica, "~> 1.0"},
-      {:phoenix_swagger, "~> 0.8.2"},
+      {:phoenix_swagger, "~> 0.8.3"},
       {:ex_json_schema, "~> 0.7.3"},
       {:json_diff, "~> 0.1.0"},
       {:elasticsearch,
