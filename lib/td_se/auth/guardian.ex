@@ -3,7 +3,6 @@ defmodule TdSe.Auth.Guardian do
 
   use Guardian, otp_app: :td_se
 
-  alias Jason
   alias TdSe.Auth.Claims
 
   def subject_for_token(%Claims{user_id: user_id, user_name: user_name}, _claims) do
