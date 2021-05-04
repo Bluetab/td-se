@@ -6,12 +6,18 @@
 
 - [TD-3628] Force release to update base image
 
+## [4.15.0] 2021-03-08
+
+### Changed
+
+- [TD-3341] Build with `elixir:1.11.3-alpine`, runtime `alpine:3.13`
+
 ## [4.14.0] 2021-02-22
 
 ### Changed
 
 - [TD-3265] Retrieve business concept id on search
-  
+
 ## [4.13.0] 2021-02-08
 
 ### Added
