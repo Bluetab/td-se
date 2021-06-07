@@ -28,6 +28,14 @@ defmodule TdSe.GlobalSearchTest do
     }
   ]
 
+  @user_without_permissions [
+    %{
+      permissions: [],
+      resource_id: 6,
+      resource_type: "domain"
+    }
+  ]
+
   setup_all do
     start_supervised(MockPermissionResolver)
     :ok
@@ -122,6 +130,28 @@ defmodule TdSe.GlobalSearchTest do
 
       assert total == 6
       assert length(results) == 6
+    end
+
+    @tag authenticated_user: "non_admin_user"
+    @tag permissions: @user_without_permissions
+    test "global search indexes with a user without any permissions", %{
+      claims: claims
+    } do
+      assert []
+
+      GlobalSearch.search(
+        %{
+          "query" => "Stru",
+          "indexes" => [
+            {"concepts_test_alias", "concepts_test"},
+            {"structures_test_alias", "structures_test"},
+            {"ingests_test_alias", "ingests_test"}
+          ]
+        },
+        claims,
+        0,
+        10_000
+      )
     end
   end
 end

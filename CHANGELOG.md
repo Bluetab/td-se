@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- [TD-3786] User without permissions cannot use global search
+
 ## [4.21.0] 2021-05-31
 
 ### Changed
