@@ -43,23 +43,28 @@ defmodule TdSe.GlobalSearch do
   end
 
   def translate_indexes(%{"indexes" => indexes} = params) do
-    Map.put(params, "indexes",  TdSe.Search.translate(indexes))
+    Map.put(params, "indexes", TdSe.Search.translate(indexes))
   end
 
   defp filter(_params, [], _page, _size), do: []
 
   defp filter(params, [_h | _t] = permissions, page, size) do
-    filter = create_filter_clause(permissions, params)
-    query = create_query(params, filter)
+    case create_filter_clause(permissions, params) do
+      %{bool: %{should: []}} ->
+        []
 
-    search = %{
-      from: page * size,
-      size: size,
-      query: query,
-      aggs: Aggregations.aggregation_terms()
-    }
+      filter ->
+        query = create_query(params, filter)
 
-    do_search(params, search)
+        search = %{
+          from: page * size,
+          size: size,
+          query: query,
+          aggs: Aggregations.aggregation_terms()
+        }
+
+        do_search(params, search)
+    end
   end
 
   defp create_query(%{"query" => query}, filter) do

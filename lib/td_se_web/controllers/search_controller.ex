@@ -65,6 +65,16 @@ defmodule TdSeWeb.SearchController do
     Map.put(params, "indexes", indices)
   end
 
+  defp render_search_results([], conn, _indixes) do
+    conn
+    |> put_resp_header("x-total-count", "0")
+    |> put_view(SearchResultsView)
+    |> render(
+      "global_search_results.json",
+      global_search_results: %{}
+    )
+  end
+
   defp render_search_results(%{results: results, total: total}, conn, %{"indexes" => indexes}) do
     global_search_results =
       Enum.reduce(indexes, [], fn {index, es_index}, acc ->
