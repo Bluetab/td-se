@@ -52,9 +52,7 @@ defmodule ElasticsearchSupport do
   end
 
   defp build_bulk_metadata(item) do
-    ~s({"index": {"_id": #{Map.fetch!(item, "id")}, "_type": "doc", "_index": "#{
-      Map.fetch!(item, "index_name")
-    }"}})
+    ~s({"index": {"_id": #{Map.fetch!(item, "id")}, "_type": "doc", "_index": "#{Map.fetch!(item, "index_name")}"}})
   end
 
   def create_aliases do

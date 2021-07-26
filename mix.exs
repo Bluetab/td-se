@@ -7,10 +7,10 @@ defmodule TdSe.Mixfile do
       app: :td_se,
       version:
         case System.get_env("APP_VERSION") do
-          nil -> "4.22.0-local"
+          nil -> "4.25.0-local"
           v -> v
         end,
-      elixir: "~> 1.10",
+      elixir: "~> 1.11",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers() ++ [:phoenix_swagger],
       start_permanent: Mix.env() == :prod,
@@ -55,7 +55,7 @@ defmodule TdSe.Mixfile do
       {:jason, "~> 1.0"},
       {:gettext, "~> 0.11"},
       {:httpoison, "~> 1.6"},
-      {:credo, "~> 1.4", only: [:dev, :test], runtime: false},
+      {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
       {:guardian, "~> 2.0"},
       {:corsica, "~> 1.0"},
       {:phoenix_swagger, "~> 0.8.3"},
@@ -64,7 +64,7 @@ defmodule TdSe.Mixfile do
       {:elasticsearch,
        git: "https://github.com/Bluetab/elasticsearch-elixir.git",
        branch: "feature/bulk-index-action"},
-      {:td_cache, git: "https://github.com/Bluetab/td-cache.git", tag: "4.12.1"}
+      {:td_cache, git: "https://github.com/Bluetab/td-cache.git", tag: "4.25.4"}
     ]
   end
 

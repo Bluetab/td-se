@@ -27,3 +27,4 @@ priv/static/swagger.json
 bc_schema.test
 local
 config/local.exs
+config/runtime.exs

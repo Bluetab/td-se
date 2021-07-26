@@ -1,5 +1,11 @@
 # Changelog
 
+## [4.25.0] 2021-07-26
+
+### Changed
+
+- Updated dependencies
+
 ## [4.22.0] 2021-06-15
 
 ### Fixed
@@ -72,7 +78,8 @@
 
 ### Fixed
 
-- [TD-2815] Confidential filter was using old mappings producing empty results in concepts search
+- [TD-2815] Confidential filter was using old mappings producing empty results
+  in concepts search
 
 ## [4.0.0] 2020-07-01
 
@@ -133,7 +140,8 @@
 
 ### Added
 
-- [TD-1571] Elixir's Logger config will check for EX_LOGGER_FORMAT variable to override format
+- [TD-1571] Elixir's Logger config will check for EX_LOGGER_FORMAT variable to
+  override format
 
 ## [2.14.0] 2019-03-04
 
