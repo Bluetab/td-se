@@ -1,157 +1,236 @@
 defmodule TdSe.GlobalSearchTest do
   use TdSeWeb.ConnCase
 
+  import Mox
+
   alias TdSe.GlobalSearch
-  alias TdSe.Permissions.MockPermissionResolver
-  alias TdSe.TestDataHelper
 
-  @indices Application.compile_env(:td_se, :indices)
-  @user_permissions [
-    %{
-      permissions: [
-        :view_draft_business_concepts,
-        :view_draft_ingests,
-        :view_published_business_concepts
-      ],
-      resource_id: 2,
-      resource_type: "domain"
-    },
-    %{
-      permissions: [:view_draft_business_concepts, :view_published_business_concepts],
-      resource_id: 3,
-      resource_type: "domain"
-    },
-    %{
-      permissions: [:view_data_structure],
-      resource_id: 5,
-      resource_type: "domain"
-    }
-  ]
-
-  @user_without_permissions [
-    %{
-      permissions: [],
-      resource_id: 6,
-      resource_type: "domain"
-    }
-  ]
-
-  setup_all do
-    start_supervised(MockPermissionResolver)
-    :ok
-  end
+  @aliases %{
+    "concepts_test_alias" => "concepts_test",
+    "structures_test_alias" => "structures_test",
+    "ingests_test_alias" => "ingests_test"
+  }
 
   setup do
-    # Delete elastic content
-    query = %{query: %{match_all: %{}}}
-    TestDataHelper.clean_docs_from_indexes(@indices, query)
-    TestDataHelper.bulk_test_data("static/bulk_content.json")
+    start_supervised!(TdSe.Search.Cluster)
     :ok
   end
 
+  setup :put_permissions
+  setup :verify_on_exit!
+
   describe "Search test" do
-    @tag authenticated_user: "non_admin_user"
-    @tag permissions: @user_permissions
-    test "search over the indexes with a non admin user has permissions", %{claims: claims} do
-      %{results: results, total: total} =
-        GlobalSearch.search(
-          %{
-            "indexes" => [
-              {"concepts_test_alias", "concepts_test"},
-              {"structures_test_alias", "structures_test"},
-              {"ingests_test_alias", "ingests_test"}
-            ]
-          },
-          claims,
-          0,
-          10_000
-        )
-
-      assert total == 2
-      assert length(results) == 2
-    end
-
-    @tag authenticated_user: "non_admin_user"
-    @tag permissions: @user_permissions
-    test "search over a concepts_test index with a non admin user", %{claims: claims} do
-      %{results: results, total: total} =
-        GlobalSearch.search(
-          %{"indexes" => [{"concepts_test_alias", "concepts_test"}]},
-          claims,
-          0,
-          10_000
-        )
-
-      assert total == 1
-      assert length(results) == 1
-    end
-
-    @tag authenticated_user: "non_admin_user"
-    @tag permissions: @user_permissions
-    test "search over a structures_test index with a non admin user using a query", %{
-      claims: claims
+    @tag authentication: [user_name: "not_an_admin"]
+    test "search multiple indices with a non admin user", %{
+      claims: claims,
+      domain_id: domain_id,
+      other_id: other_id
     } do
-      %{results: results, total: total} =
-        GlobalSearch.search(
-          %{
-            "query" => "Stru",
-            "indexes" => [
-              {"concepts_test_alias", "concepts_test"},
-              {"structures_test_alias", "structures_test"},
-              {"ingests_test_alias", "ingests_test"}
-            ]
-          },
-          claims,
-          0,
-          10_000
-        )
+      ElasticsearchMock
+      |> expect(:request, fn
+        _, :post, url, %{aggs: aggs, from: 0, query: query, size: 100}, [] ->
+          assert url == "/concepts_test_alias,ingests_test_alias,structures_test_alias/_search"
+          assert aggs == %{"_index" => %{terms: %{field: "_index"}}}
+
+          assert query == %{
+                   bool: %{
+                     minimum_should_match: 1,
+                     should: [
+                       %{
+                         bool: %{
+                           filter: [
+                             %{term: %{"domain_ids" => domain_id}},
+                             %{term: %{"_index" => "concepts_test"}},
+                             %{term: %{"status" => "published"}}
+                           ],
+                           must_not: %{term: %{"confidential.raw" => true}}
+                         }
+                       },
+                       %{
+                         bool: %{
+                           filter: [
+                             %{term: %{"domain_ids" => other_id}},
+                             %{term: %{"_index" => "structures_test"}}
+                           ],
+                           must_not: [
+                             %{term: %{"confidential" => true}},
+                             %{exists: %{field: "deleted_at"}}
+                           ]
+                         }
+                       }
+                     ]
+                   }
+                 }
+
+          SearchHelpers.hits_response([
+            %{"id" => 1, "foo" => "bar", "_index" => "concepts_test"},
+            %{"id" => 2, "foo" => "bar", "_index" => "structures_test"}
+          ])
+      end)
+
+      params = %{}
+
+      assert %{results: [_, _], total: 2} = GlobalSearch.search(params, claims, @aliases, 0, 100)
+    end
+
+    @tag authentication: [user_name: "not_an_admin"]
+    test "search concepts with a non admin user", %{
+      claims: claims,
+      domain_id: domain_id
+    } do
+      ElasticsearchMock
+      |> expect(:request, fn
+        _, :post, url, %{aggs: aggs, query: query, from: 0, size: 100}, [] ->
+          assert url == "/concepts_test_alias/_search"
+          assert aggs == %{"_index" => %{terms: %{field: "_index"}}}
+
+          assert query == %{
+                   bool: %{
+                     filter: [
+                       %{term: %{"domain_ids" => domain_id}},
+                       %{term: %{"_index" => "concepts_test"}},
+                       %{term: %{"status" => "published"}}
+                     ],
+                     must_not: %{term: %{"confidential.raw" => true}}
+                   }
+                 }
+
+          SearchHelpers.hits_response([%{"id" => 1, "foo" => "bar", "_index" => "concepts_test"}])
+      end)
+
+      aliases = Map.take(@aliases, ["concepts_test_alias"])
+      assert %{results: results, total: total} = GlobalSearch.search(%{}, claims, aliases, 0, 100)
 
       assert total == 1
       assert length(results) == 1
-      assert Enum.all?(results, &(&1["name"] == "My Structure 2"))
     end
 
-    @tag :admin_authenticated
+    @tag authentication: [user_name: "not_an_admin"]
+    test "search structures with a non admin user using a query", %{
+      claims: claims,
+      domain_id: domain_id,
+      other_id: other_id
+    } do
+      ElasticsearchMock
+      |> expect(:request, fn
+        _, :post, url, %{aggs: aggs, from: 0, query: query, size: 100}, [] ->
+          assert url == "/concepts_test_alias,ingests_test_alias,structures_test_alias/_search"
+          assert aggs == %{"_index" => %{terms: %{field: "_index"}}}
+
+          assert query == %{
+                   bool: %{
+                     minimum_should_match: 1,
+                     must: %{simple_query_string: %{query: "Foo* bar*"}},
+                     should: [
+                       %{
+                         bool: %{
+                           filter: [
+                             %{term: %{"domain_ids" => domain_id}},
+                             %{term: %{"_index" => "concepts_test"}},
+                             %{term: %{"status" => "published"}}
+                           ],
+                           must_not: %{term: %{"confidential.raw" => true}}
+                         }
+                       },
+                       %{
+                         bool: %{
+                           filter: [
+                             %{term: %{"domain_ids" => other_id}},
+                             %{term: %{"_index" => "structures_test"}}
+                           ],
+                           must_not: [
+                             %{term: %{"confidential" => true}},
+                             %{exists: %{field: "deleted_at"}}
+                           ]
+                         }
+                       }
+                     ]
+                   }
+                 }
+
+          SearchHelpers.hits_response([
+            %{"_index" => "structures_test", "id" => 123, "name" => "Foo"}
+          ])
+      end)
+
+      params = %{"query" => "Foo bar"}
+
+      assert %{results: [%{"name" => name}], total: 1} =
+               GlobalSearch.search(params, claims, @aliases, 0, 100)
+
+      assert name == "Foo"
+    end
+
+    @tag authentication: [role: "admin"]
     test "search with an admin user should fetch all results filtered by status published in ingests and concepts",
          %{claims: claims} do
-      %{results: results, total: total} =
-        GlobalSearch.search(
-          %{
-            "indexes" => [
-              {"concepts_test_alias", "concepts_test"},
-              {"structures_test_alias", "structures_test"},
-              {"ingests_test_alias", "ingests_test"}
-            ]
-          },
-          claims,
-          0,
-          10_000
-        )
+      ElasticsearchMock
+      |> expect(:request, fn
+        _, :post, url, %{aggs: aggs, from: 0, query: query, size: 100}, [] ->
+          assert url == "/concepts_test_alias,ingests_test_alias,structures_test_alias/_search"
+          assert aggs == %{"_index" => %{terms: %{field: "_index"}}}
 
-      assert total == 6
-      assert length(results) == 6
+          assert query == %{
+                   bool: %{
+                     minimum_should_match: 1,
+                     should: [
+                       %{
+                         bool: %{
+                           filter: [
+                             %{term: %{"_index" => "concepts_test"}},
+                             %{term: %{"status" => "published"}}
+                           ]
+                         }
+                       },
+                       %{
+                         bool: %{
+                           filter: [
+                             %{term: %{"_index" => "ingests_test"}},
+                             %{term: %{"status" => "published"}}
+                           ]
+                         }
+                       },
+                       %{
+                         bool: %{
+                           filter: %{term: %{"_index" => "structures_test"}},
+                           must_not: %{exists: %{field: "deleted_at"}}
+                         }
+                       }
+                     ]
+                   }
+                 }
+
+          SearchHelpers.hits_response([
+            %{"_index" => "structures_test", "id" => 123, "name" => "Foo"}
+          ])
+      end)
+
+      assert %{results: [_], total: 1} = GlobalSearch.search(%{}, claims, @aliases, 0, 100)
     end
 
-    @tag authenticated_user: "non_admin_user"
-    @tag permissions: @user_without_permissions
-    test "global search indexes with a user without any permissions", %{
-      claims: claims
-    } do
-      assert []
-
-      GlobalSearch.search(
-        %{
-          "query" => "Stru",
-          "indexes" => [
-            {"concepts_test_alias", "concepts_test"},
-            {"structures_test_alias", "structures_test"},
-            {"ingests_test_alias", "ingests_test"}
-          ]
-        },
-        claims,
-        0,
-        10_000
-      )
+    @tag authentication: [user_name: "no_permissions"]
+    test "search without any permissions", %{claims: claims} do
+      params = %{"query" => "Stru"}
+      assert GlobalSearch.search(params, claims, @aliases, 0, 100) == %{results: [], total: 0}
     end
   end
+
+  defp put_permissions(%{claims: %{user_name: "no_permissions"}}), do: :ok
+
+  defp put_permissions(%{claims: %{role: "user"} = claims}) do
+    %{id: parent_id} = CacheHelpers.put_domain()
+    %{id: domain_id} = CacheHelpers.put_domain(parent_id: parent_id)
+    %{id: other_id} = CacheHelpers.put_domain()
+
+    CacheHelpers.put_session_permissions(claims, %{
+      "view_draft_business_concepts" => [parent_id],
+      "view_published_business_concepts" => [domain_id],
+      "view_draft_ingests" => [domain_id],
+      "view_data_structure" => [other_id]
+    })
+
+    [domain_id: domain_id, other_id: other_id]
+  end
+
+  defp put_permissions(_), do: :ok
 end

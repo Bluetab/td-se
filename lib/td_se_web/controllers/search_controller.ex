@@ -8,7 +8,7 @@ defmodule TdSeWeb.SearchController do
   alias TdSeWeb.SearchResultsView
   alias TdSeWeb.SwaggerDefinitions
 
-  @indices Application.compile_env(:td_se, :indices)
+  @aliases Application.compile_env(:td_se, :index_aliases)
 
   def swagger_definitions do
     SwaggerDefinitions.global_search_definitions()
@@ -20,11 +20,7 @@ defmodule TdSeWeb.SearchController do
     produces("application/json")
 
     parameters do
-      search(
-        :body,
-        Schema.ref(:GlobalSearchRequest),
-        "Search query and filter parameters"
-      )
+      search(:body, Schema.ref(:GlobalSearchRequest), "Search query and filter parameters")
     end
 
     response(200, "OK", Schema.ref(:GlobalSearchResponse))
@@ -33,59 +29,40 @@ defmodule TdSeWeb.SearchController do
   def global_search(conn, params) do
     claims = conn.assigns[:current_resource]
 
-    params =
+    aliases =
       params
-      |> with_indexes(Map.get(params, "indexes", nil))
-      |> GlobalSearch.translate_indexes()
+      |> Map.get("indexes", default_aliases())
+      |> GlobalSearch.alias_to_index_map(claims)
 
-    claims |> do_search(params, 0, 10_000) |> render_search_results(conn, params)
+    claims
+    |> do_search(params, aliases, 0, 100)
+    |> render_search_results(conn, aliases)
   end
 
-  defp do_search(claims, search_params, page, size) do
-    page = search_params |> Map.get("page", page)
-    size = search_params |> Map.get("size", size)
+  defp do_search(claims, params, aliases, page, size) do
+    page = Map.get(params, "page", page)
+    size = Map.get(params, "size", size)
 
-    search_params
-    |> Map.drop(["page", "size"])
-    |> GlobalSearch.search(claims, page, size)
+    params
+    |> Map.drop(["indexes", "page", "size"])
+    |> GlobalSearch.search(claims, aliases, page, size)
   end
 
-  defp with_indexes(params, nil) do
-    default_indexes(params)
+  defp default_aliases do
+    Keyword.values(@aliases)
   end
 
-  defp with_indexes(params, []) do
-    default_indexes(params)
-  end
-
-  defp with_indexes(params, _), do: params
-
-  defp default_indexes(params) do
-    indices = Enum.map(@indices, fn {_k, v} -> v end)
-    Map.put(params, "indexes", indices)
-  end
-
-  defp render_search_results([], conn, _indixes) do
-    conn
-    |> put_resp_header("x-total-count", "0")
-    |> put_view(SearchResultsView)
-    |> render(
-      "global_search_results.json",
-      global_search_results: %{}
-    )
-  end
-
-  defp render_search_results(%{results: results, total: total}, conn, %{"indexes" => indexes}) do
+  defp render_search_results(%{results: results, total: total}, conn, aliases) do
     global_search_results =
-      Enum.reduce(indexes, [], fn {index, es_index}, acc ->
+      Enum.reduce(aliases, [], fn {alias_name, index_name}, acc ->
         rs =
           results
-          |> Enum.filter(&(&1["_index"] == es_index))
-          |> Enum.map(&Map.put(&1, "_index", index))
+          |> Enum.filter(&(&1["_index"] == index_name))
+          |> Enum.map(&Map.put(&1, "_index", alias_name))
 
         result_map =
           %{}
-          |> Map.put("index", index)
+          |> Map.put("index", alias_name)
           |> Map.put("results", rs)
 
         acc ++ [result_map]

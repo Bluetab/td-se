@@ -64,13 +64,13 @@ defmodule TdSe.Mixfile do
       {:elasticsearch,
        git: "https://github.com/Bluetab/elasticsearch-elixir.git",
        branch: "feature/bulk-index-action"},
-      {:td_cache, git: "https://github.com/Bluetab/td-cache.git", tag: "4.25.4"}
+      {:td_cache, git: "https://github.com/Bluetab/td-cache.git", tag: "4.40.0"},
+      {:ex_machina, "~> 2.4", only: :test},
+      {:mox, "~> 1.0", only: :test}
     ]
   end
 
   defp aliases do
-    [
-      test: ["Se.EsInit", "test", "Se.EsClean"]
-    ]
+    []
   end
 end
