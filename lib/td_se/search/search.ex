@@ -13,8 +13,16 @@ defmodule TdSe.Search do
     |> search(query)
   end
 
+  def search("", query) do
+    do_search("/_search", query)
+  end
+
   def search(index, query) when is_binary(index) do
-    case Elasticsearch.post(Cluster, "/#{index}/_search", query) do
+    do_search("/#{index}/_search", query)
+  end
+
+  def do_search(url, query) do
+    case Elasticsearch.post(Cluster, url, query) do
       {:ok, %{"hits" => %{"hits" => results, "total" => total}}} ->
         %{results: results, total: total}
 
@@ -24,17 +32,24 @@ defmodule TdSe.Search do
     end
   end
 
-  def translate(indexes) do
+  def translate(aliases) do
     case Elasticsearch.get(Cluster, "/_aliases") do
       {:ok, %{} = body} ->
         body
-        |> Enum.map(fn {k, v} -> {k, v |> Map.get("aliases", %{}) |> Map.keys() |> Enum.at(0)} end)
-        |> Enum.filter(fn {_k, v} -> v && v in indexes end)
-        |> Enum.into(%{}, fn {k, v} -> {v, k} end)
+        |> Enum.reduce(%{}, &reduce_aliases/2)
+        |> Map.take(aliases)
 
       {:error, %Elasticsearch.Exception{message: message} = error} ->
         Logger.warn("Error response from Elasticsearch: #{message}")
         error
     end
   end
+
+  defp reduce_aliases({index, %{"aliases" => %{} = aliases}}, acc) when map_size(aliases) > 0 do
+    aliases
+    |> Map.keys()
+    |> Enum.reduce(acc, &Map.put(&2, &1, index))
+  end
+
+  defp reduce_aliases(_, acc), do: acc
 end

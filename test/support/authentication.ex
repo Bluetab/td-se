@@ -27,9 +27,10 @@ defmodule TdSe.Authentication do
     {:ok, %{conn: conn, jwt: jwt, claims: claims}}
   end
 
-  def create_claims(user_name, opts \\ []) do
-    user_id = Integer.mod(:binary.decode_unsigned(user_name), 100_000)
+  def create_claims(opts \\ []) do
     role = Keyword.get(opts, :role, "user")
+    user_name = Keyword.get(opts, :user_name, "joe")
+    %{id: user_id} = CacheHelpers.put_user(user_name: user_name)
 
     %Claims{
       user_id: user_id,
@@ -37,4 +38,12 @@ defmodule TdSe.Authentication do
       role: role
     }
   end
+
+  def assign_permissions({:ok, %{claims: claims} = state}, [_ | _] = permissions) do
+    %{id: domain_id} = domain = CacheHelpers.put_domain()
+    CacheHelpers.put_session_permissions(claims, domain_id, permissions)
+    {:ok, Map.put(state, :domain, domain)}
+  end
+
+  def assign_permissions(state, _), do: state
 end

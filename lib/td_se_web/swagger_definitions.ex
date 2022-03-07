@@ -7,7 +7,7 @@ defmodule TdSeWeb.SwaggerDefinitions do
       IndexList:
         swagger_schema do
           title("Index List")
-          description("A collection of indexes with its results")
+          description("A collection of indices with results")
           type(:array)
           items(Schema.ref(:Index))
         end,

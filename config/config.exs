@@ -5,8 +5,8 @@
 # is restricted to this project.
 use Mix.Config
 
-# Hashing algorithm
-config :td_se, hashing_module: Comeonin.Bcrypt
+# Environment
+config :td_se, :env, Mix.env()
 
 # Configures the endpoint
 config :td_se, TdSeWeb.Endpoint,
@@ -37,17 +37,15 @@ config :td_se, TdSe.Auth.Guardian,
   ttl: {1, :hours},
   secret_key: "SuperSecretTruedat"
 
-config :td_se, permission_resolver: TdCache.Permissions
-
 config :td_se, :phoenix_swagger,
   swagger_files: %{
     "priv/static/swagger.json" => [router: TdSeWeb.Router]
   }
 
-config :td_se, :indices,
-  data_structure_alias: "structures",
-  business_concept_alias: "concepts",
-  ingest_alias: "ingests"
+config :td_se, :index_aliases,
+  structures: "structures",
+  concepts: "concepts",
+  ingests: "ingests"
 
 config :td_cache, redis_host: "redis"
 
