@@ -7,7 +7,7 @@ defmodule TdSe.Mixfile do
       app: :td_se,
       version:
         case System.get_env("APP_VERSION") do
-          nil -> "4.25.0-local"
+          nil -> "4.40.0-local"
           v -> v
         end,
       elixir: "~> 1.11",
@@ -64,7 +64,7 @@ defmodule TdSe.Mixfile do
       {:elasticsearch,
        git: "https://github.com/Bluetab/elasticsearch-elixir.git",
        branch: "feature/bulk-index-action"},
-      {:td_cache, git: "https://github.com/Bluetab/td-cache.git", tag: "4.40.2"},
+      {:td_cache, git: "https://github.com/Bluetab/td-cache.git", tag: "4.40.3"},
       {:ex_machina, "~> 2.4", only: :test},
       {:mox, "~> 1.0", only: :test}
     ]
