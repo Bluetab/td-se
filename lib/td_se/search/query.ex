@@ -59,8 +59,7 @@ defmodule TdSe.Search.Query do
     must =
       query_string
       |> words()
-      |> Enum.map(&maybe_add_wildcard/1)
-      |> Enum.join(" ")
+      |> Enum.map_join(" ", &maybe_add_wildcard/1)
       |> simple_query_string()
 
     bool = put(bool, :must, must)
