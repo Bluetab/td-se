@@ -1,5 +1,11 @@
 # Changelog
 
+## [4.45.0] 2022-06-06
+
+### Changed
+
+- Updated dependencies
+
 ## [4.40.0] 2022-03-14
 
 ### Changed
@@ -101,31 +107,31 @@
 
 ## [3.13.0] 2020-01-13
 
-## Changed
+### Changed
 
 - [TD-2271] Filter deleted structures on search
 
 ## [3.8.0] 2019-10-14
 
-## Changed
+### Changed
 
 - [TD-1721] Use aliases instead of indexes on search query
 
 ## [3.6.0] 2019-09-16
 
-## Changed
+### Changed
 
 - Use td-cache 3.5.1
 
 ## [3.2.0] 2019-07-24
 
-## Changed
+### Changed
 
 - [TD-2002] Update td-cache and delete permissions list from config
 
 ## [3.1.0] 2019-07-08
 
-## Changed
+### Changed
 
 - [TD-1681] Cache improvement (td-cache instead of td-perms)
 - [TD-1942] Use Jason instead of Posion for JSON encoding/decoding
@@ -142,7 +148,7 @@
 
 - [TD-1774] Newline is missing in logger format
 
-## [2.16.0]
+## [2.16.0] 2019-04-01
 
 ### Added
 
