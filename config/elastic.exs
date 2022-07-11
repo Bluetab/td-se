@@ -1,4 +1,4 @@
-use Mix.Config
+import Config
 
 config :td_se, TdSe.Search.Cluster,
   # Will be overridden by the `ES_URL` environment variable if set.

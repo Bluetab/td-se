@@ -5,6 +5,6 @@ defmodule TdSe.Auth.Pipeline.Unsecure do
     error_handler: TdSe.Auth.ErrorHandler,
     module: TdSe.Auth.Guardian
 
-  plug(Guardian.Plug.VerifyHeader)
-  plug(Guardian.Plug.LoadResource, allow_blank: true)
+  plug Guardian.Plug.VerifyHeader
+  plug Guardian.Plug.LoadResource, allow_blank: true
 end

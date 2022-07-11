@@ -2,17 +2,12 @@ defmodule TdSeWeb.Router do
   use TdSeWeb, :router
 
   pipeline :api do
-    plug(TdSe.Auth.Pipeline.Unsecure)
-    plug(:accepts, ["json"])
+    plug TdSe.Auth.Pipeline.Unsecure
+    plug :accepts, ["json"]
   end
 
-  pipeline :api_secure do
-    plug(TdSe.Auth.Pipeline.Secure)
-  end
-
-  pipeline :api_authorized do
-    plug(TdSe.Auth.CurrentResource)
-    plug(Guardian.Plug.LoadResource)
+  pipeline :api_auth do
+    plug TdSe.Auth.Pipeline.Secure
   end
 
   scope "/api/swagger" do
@@ -20,12 +15,12 @@ defmodule TdSeWeb.Router do
   end
 
   scope "/api", TdSeWeb do
-    pipe_through([:api])
+    pipe_through :api
     get("/ping", PingController, :ping)
   end
 
   scope "/api", TdSeWeb do
-    pipe_through([:api, :api_secure, :api_authorized])
+    pipe_through [:api, :api_auth]
     post("/global_search", SearchController, :global_search)
   end
 

@@ -56,6 +56,7 @@ defmodule TdSe.Mixfile do
       {:gettext, "~> 0.11"},
       {:httpoison, "~> 1.6"},
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 1.0", only: :dev, runtime: false},
       {:guardian, "~> 2.0"},
       {:corsica, "~> 1.0"},
       {:phoenix_swagger, "~> 0.8.3"},
@@ -64,7 +65,8 @@ defmodule TdSe.Mixfile do
       {:elasticsearch,
        git: "https://github.com/Bluetab/elasticsearch-elixir.git",
        branch: "feature/bulk-index-action"},
-      {:td_cache, git: "https://github.com/Bluetab/td-cache.git", tag: "4.40.3"},
+      {:td_cache,
+       git: "https://github.com/Bluetab/td-cache.git", tag: "4.48.0", override: true},
       {:ex_machina, "~> 2.4", only: :test},
       {:mox, "~> 1.0", only: :test}
     ]

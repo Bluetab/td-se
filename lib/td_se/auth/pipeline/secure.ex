@@ -1,10 +1,15 @@
 defmodule TdSe.Auth.Pipeline.Secure do
-  @moduledoc false
+  @moduledoc """
+  Plug pipeline for routes requiring authentication
+  """
+
   use Guardian.Plug.Pipeline,
     otp_app: :td_se,
     error_handler: TdSe.Auth.ErrorHandler,
     module: TdSe.Auth.Guardian
 
-  plug(Guardian.Plug.EnsureAuthenticated, claims: %{"typ" => "access"})
-  plug(TdSe.Auth.CurrentResource)
+  plug Guardian.Plug.EnsureAuthenticated, claims: %{"aud" => "truedat", "iss" => "tdauth"}
+  plug Guardian.Plug.LoadResource
+  plug TdSe.Auth.Plug.SessionExists
+  plug TdSe.Auth.Plug.CurrentResource
 end
