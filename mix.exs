@@ -65,10 +65,10 @@ defmodule TdSe.Mixfile do
       {:elasticsearch,
        git: "https://github.com/Bluetab/elasticsearch-elixir.git",
        branch: "feature/bulk-index-action"},
-      {:td_cache,
-       git: "https://github.com/Bluetab/td-cache.git", tag: "4.48.0", override: true},
+      {:td_cache, git: "https://github.com/Bluetab/td-cache.git", tag: "4.48.0", override: true},
       {:ex_machina, "~> 2.4", only: :test},
-      {:mox, "~> 1.0", only: :test}
+      {:mox, "~> 1.0", only: :test},
+      {:sobelow, "~> 0.11", only: [:dev, :test]}
     ]
   end
 
