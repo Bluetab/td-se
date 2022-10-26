@@ -3,8 +3,7 @@ defmodule TdSe.Application do
 
   use Application
 
-  # See https://hexdocs.pm/elixir/Application.html
-  # for more information on OTP Applications
+  @impl true
   def start(_type, _args) do
     env = Application.get_env(:td_se, :env)
 
@@ -17,17 +16,16 @@ defmodule TdSe.Application do
     Supervisor.start_link(children, opts)
   end
 
-  def children(:test), do: []
-
-  def children(_env) do
-    # Elasticsearch worker
-    [TdSe.Search.Cluster]
-  end
-
-  # Tell Phoenix to update the endpoint configuration
-  # whenever the application is updated.
+  @impl true
   def config_change(changed, _new, removed) do
     TdSeWeb.Endpoint.config_change(changed, removed)
     :ok
+  end
+
+  defp children(:test), do: []
+
+  defp children(_env) do
+    # Elasticsearch worker
+    [TdSe.Search.Cluster]
   end
 end
