@@ -7,6 +7,9 @@ config :td_se, TdSeWeb.Endpoint, server: true
 # Print only warnings and errors during test
 config :logger, level: :warn
 
+# Track all Plug compile-time dependencies
+config :phoenix, :plug_init_mode, :runtime
+
 config :td_se, :index_aliases,
   structures: "structures_test_alias",
   concepts: "concepts_test_alias",
