@@ -22,9 +22,9 @@ defmodule TdSe.Search do
   end
 
   def do_search(url, query) do
-    case Elasticsearch.post(Cluster, url, query) do
+    case Elasticsearch.post(Cluster, url, query, params: %{"track_total_hits" => "true"}) do
       {:ok, %{"hits" => %{"hits" => results, "total" => total}}} ->
-        %{results: results, total: total}
+        %{results: results, total: get_total(total)}
 
       {:error, %Elasticsearch.Exception{message: message} = error} ->
         Logger.warn("Error response from Elasticsearch: #{message}")
@@ -52,4 +52,7 @@ defmodule TdSe.Search do
   end
 
   defp reduce_aliases(_, acc), do: acc
+
+  defp get_total(value) when is_integer(value), do: value
+  defp get_total(%{"relation" => "eq", "value" => value}) when is_integer(value), do: value
 end

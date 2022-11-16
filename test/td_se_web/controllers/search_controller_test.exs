@@ -19,14 +19,15 @@ defmodule TdBgWeb.SearchControllerTest do
     test "groups results by index alias", %{conn: conn, swagger_schema: schema} do
       ElasticsearchMock
       |> expect(:request, fn _, :get, "/_aliases", "", [] -> SearchHelpers.aliases_response() end)
-      |> expect(:request, fn
-        _, :post, _, _, [] ->
-          SearchHelpers.hits_response([
-            %{"_index" => "structures_test"},
-            %{"_index" => "concepts_test"},
-            %{"_index" => "ingests_test"},
-            %{"_index" => "concepts_test"}
-          ])
+      |> expect(:request, fn _, :post, _, _, opts ->
+        assert opts == [params: %{"track_total_hits" => "true"}]
+
+        SearchHelpers.hits_response([
+          %{"_index" => "structures_test"},
+          %{"_index" => "concepts_test"},
+          %{"_index" => "ingests_test"},
+          %{"_index" => "concepts_test"}
+        ])
       end)
 
       assert %{"data" => data} =
@@ -51,42 +52,46 @@ defmodule TdBgWeb.SearchControllerTest do
     test "Searches all indices by default", %{conn: conn, swagger_schema: schema} do
       ElasticsearchMock
       |> expect(:request, fn _, :get, "/_aliases", "", [] -> SearchHelpers.aliases_response() end)
-      |> expect(:request, fn
-        _, :post, url, %{aggs: aggs, from: 0, query: query, size: 100}, [] ->
-          assert url == "/concepts_test_alias,ingests_test_alias,structures_test_alias/_search"
-          assert aggs == %{"_index" => %{terms: %{field: "_index"}}}
+      |> expect(:request, fn _,
+                             :post,
+                             url,
+                             %{aggs: aggs, from: 0, query: query, size: 100},
+                             opts ->
+        assert opts == [params: %{"track_total_hits" => "true"}]
+        assert url == "/concepts_test_alias,ingests_test_alias,structures_test_alias/_search"
+        assert aggs == %{"_index" => %{terms: %{field: "_index"}}}
 
-          assert query == %{
-                   bool: %{
-                     minimum_should_match: 1,
-                     should: [
-                       %{
-                         bool: %{
-                           filter: [
-                             %{term: %{"_index" => "concepts_test"}},
-                             %{term: %{"status" => "published"}}
-                           ]
-                         }
-                       },
-                       %{
-                         bool: %{
-                           filter: [
-                             %{term: %{"_index" => "ingests_test"}},
-                             %{term: %{"status" => "published"}}
-                           ]
-                         }
-                       },
-                       %{
-                         bool: %{
-                           filter: %{term: %{"_index" => "structures_test"}},
-                           must_not: %{exists: %{field: "deleted_at"}}
-                         }
+        assert query == %{
+                 bool: %{
+                   minimum_should_match: 1,
+                   should: [
+                     %{
+                       bool: %{
+                         filter: [
+                           %{term: %{"_index" => "concepts_test"}},
+                           %{term: %{"status" => "published"}}
+                         ]
                        }
-                     ]
-                   }
+                     },
+                     %{
+                       bool: %{
+                         filter: [
+                           %{term: %{"_index" => "ingests_test"}},
+                           %{term: %{"status" => "published"}}
+                         ]
+                       }
+                     },
+                     %{
+                       bool: %{
+                         filter: %{term: %{"_index" => "structures_test"}},
+                         must_not: %{exists: %{field: "deleted_at"}}
+                       }
+                     }
+                   ]
                  }
+               }
 
-          SearchHelpers.hits_response([%{"_index" => "concepts_test"}])
+        SearchHelpers.hits_response([%{"_index" => "concepts_test"}])
       end)
 
       assert %{"data" => _} =
@@ -100,24 +105,28 @@ defmodule TdBgWeb.SearchControllerTest do
     test "Search only specified indices", %{conn: conn, swagger_schema: schema} do
       ElasticsearchMock
       |> expect(:request, fn _, :get, "/_aliases", "", [] -> SearchHelpers.aliases_response() end)
-      |> expect(:request, fn
-        _, :post, url, %{aggs: aggs, from: 0, query: query, size: 100}, [] ->
-          assert url == "/structures_test_alias/_search"
-          assert aggs == %{"_index" => %{terms: %{field: "_index"}}}
+      |> expect(:request, fn _,
+                             :post,
+                             url,
+                             %{aggs: aggs, from: 0, query: query, size: 100},
+                             opts ->
+        assert opts == [params: %{"track_total_hits" => "true"}]
+        assert url == "/structures_test_alias/_search"
+        assert aggs == %{"_index" => %{terms: %{field: "_index"}}}
 
-          assert query == %{
-                   bool: %{
-                     filter: %{term: %{"_index" => "structures_test"}},
-                     must_not: %{exists: %{field: "deleted_at"}}
-                   }
+        assert query == %{
+                 bool: %{
+                   filter: %{term: %{"_index" => "structures_test"}},
+                   must_not: %{exists: %{field: "deleted_at"}}
                  }
+               }
 
-          SearchHelpers.hits_response([
-            %{"_index" => "structures_test"},
-            %{"_index" => "structures_test"},
-            %{"_index" => "structures_test"},
-            %{"_index" => "structures_test"}
-          ])
+        SearchHelpers.hits_response([
+          %{"_index" => "structures_test"},
+          %{"_index" => "structures_test"},
+          %{"_index" => "structures_test"},
+          %{"_index" => "structures_test"}
+        ])
       end)
 
       params = %{"indexes" => [@indices[:structures]]}
@@ -142,30 +151,34 @@ defmodule TdBgWeb.SearchControllerTest do
     } do
       ElasticsearchMock
       |> expect(:request, fn _, :get, "/_aliases", "", [] -> SearchHelpers.aliases_response() end)
-      |> expect(:request, fn
-        _, :post, url, %{aggs: aggs, from: 0, query: query, size: 100}, [] ->
-          assert url == "/structures_test_alias/_search"
-          assert aggs == %{"_index" => %{terms: %{field: "_index"}}}
+      |> expect(:request, fn _,
+                             :post,
+                             url,
+                             %{aggs: aggs, from: 0, query: query, size: 100},
+                             opts ->
+        assert opts == [params: %{"track_total_hits" => "true"}]
+        assert url == "/structures_test_alias/_search"
+        assert aggs == %{"_index" => %{terms: %{field: "_index"}}}
 
-          assert query == %{
-                   bool: %{
-                     filter: [
-                       %{term: %{"domain_ids" => domain_id}},
-                       %{term: %{"_index" => "structures_test"}}
-                     ],
-                     must_not: [
-                       %{term: %{"confidential" => true}},
-                       %{exists: %{field: "deleted_at"}}
-                     ]
-                   }
+        assert query == %{
+                 bool: %{
+                   filter: [
+                     %{term: %{"domain_ids" => domain_id}},
+                     %{term: %{"_index" => "structures_test"}}
+                   ],
+                   must_not: [
+                     %{term: %{"confidential" => true}},
+                     %{exists: %{field: "deleted_at"}}
+                   ]
                  }
+               }
 
-          SearchHelpers.hits_response([
-            %{"_index" => "structures_test"},
-            %{"_index" => "concepts_test"},
-            %{"_index" => "ingests_test"},
-            %{"_index" => "concepts_test"}
-          ])
+        SearchHelpers.hits_response([
+          %{"_index" => "structures_test"},
+          %{"_index" => "concepts_test"},
+          %{"_index" => "ingests_test"},
+          %{"_index" => "concepts_test"}
+        ])
       end)
 
       assert %{"data" => data} =
@@ -181,30 +194,34 @@ defmodule TdBgWeb.SearchControllerTest do
     test "Search only specified indices", %{conn: conn, swagger_schema: schema} do
       ElasticsearchMock
       |> expect(:request, fn _, :get, "/_aliases", "", [] -> SearchHelpers.aliases_response() end)
-      |> expect(:request, fn
-        _, :post, url, %{aggs: aggs, from: 0, query: query, size: 100}, [] ->
-          assert url == "/structures_test_alias/_search"
-          assert aggs == %{"_index" => %{terms: %{field: "_index"}}}
+      |> expect(:request, fn _,
+                             :post,
+                             url,
+                             %{aggs: aggs, from: 0, query: query, size: 100},
+                             opts ->
+        assert opts == [params: %{"track_total_hits" => "true"}]
+        assert url == "/structures_test_alias/_search"
+        assert aggs == %{"_index" => %{terms: %{field: "_index"}}}
 
-          assert %{
-                   bool: %{
-                     filter: [
-                       %{term: %{"domain_ids" => _}},
-                       %{term: %{"_index" => "structures_test"}}
-                     ],
-                     must_not: [
-                       %{term: %{"confidential" => true}},
-                       %{exists: %{field: "deleted_at"}}
-                     ]
-                   }
-                 } = query
+        assert %{
+                 bool: %{
+                   filter: [
+                     %{term: %{"domain_ids" => _}},
+                     %{term: %{"_index" => "structures_test"}}
+                   ],
+                   must_not: [
+                     %{term: %{"confidential" => true}},
+                     %{exists: %{field: "deleted_at"}}
+                   ]
+                 }
+               } = query
 
-          SearchHelpers.hits_response([
-            %{"_index" => "structures_test"},
-            %{"_index" => "structures_test"},
-            %{"_index" => "structures_test"},
-            %{"_index" => "structures_test"}
-          ])
+        SearchHelpers.hits_response([
+          %{"_index" => "structures_test"},
+          %{"_index" => "structures_test"},
+          %{"_index" => "structures_test"},
+          %{"_index" => "structures_test"}
+        ])
       end)
 
       params = %{"indexes" => [@indices[:structures]]}
