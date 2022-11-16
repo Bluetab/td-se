@@ -27,8 +27,10 @@ defmodule TdSe.GlobalSearchTest do
       other_id: other_id
     } do
       ElasticsearchMock
-      |> expect(:request, fn
-        _, :post, url, %{aggs: aggs, from: 0, query: query, size: 100}, [] ->
+      |> expect(
+        :request,
+        fn _, :post, url, %{aggs: aggs, from: 0, query: query, size: 100}, opts ->
+          assert opts == [params: %{"track_total_hits" => "true"}]
           assert url == "/concepts_test_alias,ingests_test_alias,structures_test_alias/_search"
           assert aggs == %{"_index" => %{terms: %{field: "_index"}}}
 
@@ -66,7 +68,8 @@ defmodule TdSe.GlobalSearchTest do
             %{"id" => 1, "foo" => "bar", "_index" => "concepts_test"},
             %{"id" => 2, "foo" => "bar", "_index" => "structures_test"}
           ])
-      end)
+        end
+      )
 
       params = %{}
 
@@ -79,23 +82,22 @@ defmodule TdSe.GlobalSearchTest do
       domain_id: domain_id
     } do
       ElasticsearchMock
-      |> expect(:request, fn
-        _, :post, url, %{aggs: aggs, query: query, from: 0, size: 100}, [] ->
-          assert url == "/concepts_test_alias/_search"
-          assert aggs == %{"_index" => %{terms: %{field: "_index"}}}
+      |> expect(:request, fn _, :post, url, %{aggs: aggs, query: query, from: 0, size: 100}, _ ->
+        assert url == "/concepts_test_alias/_search"
+        assert aggs == %{"_index" => %{terms: %{field: "_index"}}}
 
-          assert query == %{
-                   bool: %{
-                     filter: [
-                       %{term: %{"domain_ids" => domain_id}},
-                       %{term: %{"_index" => "concepts_test"}},
-                       %{term: %{"status" => "published"}}
-                     ],
-                     must_not: %{term: %{"confidential.raw" => true}}
-                   }
+        assert query == %{
+                 bool: %{
+                   filter: [
+                     %{term: %{"domain_ids" => domain_id}},
+                     %{term: %{"_index" => "concepts_test"}},
+                     %{term: %{"status" => "published"}}
+                   ],
+                   must_not: %{term: %{"confidential.raw" => true}}
                  }
+               }
 
-          SearchHelpers.hits_response([%{"id" => 1, "foo" => "bar", "_index" => "concepts_test"}])
+        SearchHelpers.hits_response([%{"id" => 1, "foo" => "bar", "_index" => "concepts_test"}])
       end)
 
       aliases = Map.take(@aliases, ["concepts_test_alias"])
@@ -112,8 +114,10 @@ defmodule TdSe.GlobalSearchTest do
       other_id: other_id
     } do
       ElasticsearchMock
-      |> expect(:request, fn
-        _, :post, url, %{aggs: aggs, from: 0, query: query, size: 100}, [] ->
+      |> expect(
+        :request,
+        fn _, :post, url, %{aggs: aggs, from: 0, query: query, size: 100}, opts ->
+          assert opts == [params: %{"track_total_hits" => "true"}]
           assert url == "/concepts_test_alias,ingests_test_alias,structures_test_alias/_search"
           assert aggs == %{"_index" => %{terms: %{field: "_index"}}}
 
@@ -151,7 +155,8 @@ defmodule TdSe.GlobalSearchTest do
           SearchHelpers.hits_response([
             %{"_index" => "structures_test", "id" => 123, "name" => "Foo"}
           ])
-      end)
+        end
+      )
 
       params = %{"query" => "Foo bar"}
 
@@ -165,8 +170,10 @@ defmodule TdSe.GlobalSearchTest do
     test "search with an admin user should fetch all results filtered by status published in ingests and concepts",
          %{claims: claims} do
       ElasticsearchMock
-      |> expect(:request, fn
-        _, :post, url, %{aggs: aggs, from: 0, query: query, size: 100}, [] ->
+      |> expect(
+        :request,
+        fn _, :post, url, %{aggs: aggs, from: 0, query: query, size: 100}, opts ->
+          assert opts == [params: %{"track_total_hits" => "true"}]
           assert url == "/concepts_test_alias,ingests_test_alias,structures_test_alias/_search"
           assert aggs == %{"_index" => %{terms: %{field: "_index"}}}
 
@@ -203,7 +210,8 @@ defmodule TdSe.GlobalSearchTest do
           SearchHelpers.hits_response([
             %{"_index" => "structures_test", "id" => 123, "name" => "Foo"}
           ])
-      end)
+        end
+      )
 
       assert %{results: [_], total: 1} = GlobalSearch.search(%{}, claims, @aliases, 0, 100)
     end

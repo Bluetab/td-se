@@ -19,7 +19,11 @@ defmodule SearchHelpers do
 
     total = total || Enum.count(hits)
 
-    {:ok, %{"hits" => %{"hits" => hits, "total" => total}, "aggregations" => aggs(hits, total)}}
+    {:ok,
+     %{
+       "hits" => %{"hits" => hits, "total" => %{"relation" => "eq", "value" => total}},
+       "aggregations" => aggs(hits, total)
+     }}
   end
 
   defp hit(%{"id" => id, "_index" => index} = doc) do
