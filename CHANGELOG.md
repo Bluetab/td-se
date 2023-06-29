@@ -1,5 +1,11 @@
 # Changelog
 
+## [unreleased]
+
+### Changed
+
+- [TD-5787] Add multi_match param in elastic query for Boost option
+
 ## [5.4.0] 2023-03-28
 
 ### Added
