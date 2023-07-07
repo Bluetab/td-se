@@ -5,6 +5,7 @@
 ### Changed
 
 - [TD-5787] Add multi_match param in elastic query for Boost option
+- [TD-5912] `.gitlab-ci.yml` adaptations for develop and main branches
 
 ## [5.4.0] 2023-03-28
 
