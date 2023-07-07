@@ -40,7 +40,7 @@ defmodule TdSe.GlobalSearchTest do
                      should: [
                        %{
                          bool: %{
-                           filter: [
+                           must: [
                              %{term: %{"domain_ids" => domain_id}},
                              %{term: %{"_index" => "concepts_test"}},
                              %{term: %{"status" => "published"}}
@@ -50,7 +50,7 @@ defmodule TdSe.GlobalSearchTest do
                        },
                        %{
                          bool: %{
-                           filter: [
+                           must: [
                              %{term: %{"domain_ids" => other_id}},
                              %{term: %{"_index" => "structures_test"}}
                            ],
@@ -88,7 +88,7 @@ defmodule TdSe.GlobalSearchTest do
 
         assert query == %{
                  bool: %{
-                   filter: [
+                   must: [
                      %{term: %{"domain_ids" => domain_id}},
                      %{term: %{"_index" => "concepts_test"}},
                      %{term: %{"status" => "published"}}
@@ -128,23 +128,41 @@ defmodule TdSe.GlobalSearchTest do
                      should: [
                        %{
                          bool: %{
-                           filter: [
+                           must: [
                              %{term: %{"domain_ids" => domain_id}},
                              %{term: %{"_index" => "concepts_test"}},
                              %{term: %{"status" => "published"}}
                            ],
-                           must_not: %{term: %{"confidential.raw" => true}}
+                           must_not: %{term: %{"confidential.raw" => true}},
+                           should: [
+                             %{
+                               multi_match: %{
+                                 operator: "and",
+                                 query: "Foo bar*",
+                                 type: "best_fields"
+                               }
+                             }
+                           ]
                          }
                        },
                        %{
                          bool: %{
-                           filter: [
+                           must: [
                              %{term: %{"domain_ids" => other_id}},
                              %{term: %{"_index" => "structures_test"}}
                            ],
                            must_not: [
                              %{term: %{"confidential" => true}},
                              %{exists: %{field: "deleted_at"}}
+                           ],
+                           should: [
+                             %{
+                               multi_match: %{
+                                 operator: "and",
+                                 query: "Foo bar*",
+                                 type: "best_fields"
+                               }
+                             }
                            ]
                          }
                        }
@@ -183,7 +201,7 @@ defmodule TdSe.GlobalSearchTest do
                      should: [
                        %{
                          bool: %{
-                           filter: [
+                           must: [
                              %{term: %{"_index" => "concepts_test"}},
                              %{term: %{"status" => "published"}}
                            ]
@@ -191,7 +209,7 @@ defmodule TdSe.GlobalSearchTest do
                        },
                        %{
                          bool: %{
-                           filter: [
+                           must: [
                              %{term: %{"_index" => "ingests_test"}},
                              %{term: %{"status" => "published"}}
                            ]
@@ -199,7 +217,7 @@ defmodule TdSe.GlobalSearchTest do
                        },
                        %{
                          bool: %{
-                           filter: %{term: %{"_index" => "structures_test"}},
+                           must: %{term: %{"_index" => "structures_test"}},
                            must_not: %{exists: %{field: "deleted_at"}}
                          }
                        }

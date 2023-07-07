@@ -67,7 +67,7 @@ defmodule TdBgWeb.SearchControllerTest do
                    should: [
                      %{
                        bool: %{
-                         filter: [
+                         must: [
                            %{term: %{"_index" => "concepts_test"}},
                            %{term: %{"status" => "published"}}
                          ]
@@ -75,7 +75,7 @@ defmodule TdBgWeb.SearchControllerTest do
                      },
                      %{
                        bool: %{
-                         filter: [
+                         must: [
                            %{term: %{"_index" => "ingests_test"}},
                            %{term: %{"status" => "published"}}
                          ]
@@ -83,7 +83,7 @@ defmodule TdBgWeb.SearchControllerTest do
                      },
                      %{
                        bool: %{
-                         filter: %{term: %{"_index" => "structures_test"}},
+                         must: %{term: %{"_index" => "structures_test"}},
                          must_not: %{exists: %{field: "deleted_at"}}
                        }
                      }
@@ -116,7 +116,7 @@ defmodule TdBgWeb.SearchControllerTest do
 
         assert query == %{
                  bool: %{
-                   filter: %{term: %{"_index" => "structures_test"}},
+                   must: %{term: %{"_index" => "structures_test"}},
                    must_not: %{exists: %{field: "deleted_at"}}
                  }
                }
@@ -162,7 +162,7 @@ defmodule TdBgWeb.SearchControllerTest do
 
         assert query == %{
                  bool: %{
-                   filter: [
+                   must: [
                      %{term: %{"domain_ids" => domain_id}},
                      %{term: %{"_index" => "structures_test"}}
                    ],
@@ -205,7 +205,7 @@ defmodule TdBgWeb.SearchControllerTest do
 
         assert %{
                  bool: %{
-                   filter: [
+                   must: [
                      %{term: %{"domain_ids" => _}},
                      %{term: %{"_index" => "structures_test"}}
                    ],

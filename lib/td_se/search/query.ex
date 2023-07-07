@@ -17,25 +17,29 @@ defmodule TdSe.Search.Query do
 
   @match_none %{match_none: %{}}
 
-  def build_query(permissions, indices, nil = _query_string) do
-    build_query(permissions, indices)
+  def build_query(permissions, indices) do
+    build_group_query(permissions, indices, nil)
+  end
+
+  def build_query(permissions, indices, nil = query_string) do
+    build_group_query(permissions, indices, query_string)
   end
 
   def build_query(permissions, indices, query_string) when is_binary(query_string) do
     query_string = String.trim(query_string)
 
     permissions
-    |> build_query(indices)
+    |> build_group_query(indices, query_string)
     |> put_query_string(query_string)
   end
 
-  def build_query(permissions, indices) do
+  def build_group_query(permissions, indices, query) do
     permissions
     |> Map.take(Map.keys(@permission_to_alias))
     |> put_defaults()
     |> Enum.group_by(&permission_to_alias(&1, indices))
     |> Enum.reject(fn {{_key, index}, _} -> is_nil(index) end)
-    |> Enum.map(&map_group/1)
+    |> Enum.map(&map_group(&1, query))
     |> Enum.reject(&(&1 == @match_none))
     |> some()
   end
@@ -74,24 +78,43 @@ defmodule TdSe.Search.Query do
     end
   end
 
-  defp map_group({group, permissions}) do
+  defp map_group({group, permissions}, query) do
     acc = acc(group)
 
     permissions
     |> Enum.reduce_while(acc, &reduce_permission/2)
+    |> add_query_should(query)
     |> bool()
+  end
+
+  defp add_query_should(filters, nil), do: filters
+
+  defp add_query_should(%{match_none: %{}} = filters, _), do: filters
+
+  defp add_query_should(filters, query) do
+    should = [
+      %{
+        multi_match: %{
+          query: maybe_add_wildcard(query),
+          type: "best_fields",
+          operator: "and"
+        }
+      }
+    ]
+
+    Map.put(filters, :should, should)
   end
 
   defp acc({@structures, index}) do
     %{
-      filter: term("_index", index),
+      must: term("_index", index),
       must_not: exists("deleted_at")
     }
   end
 
   defp acc({_, index}) do
     %{
-      filter: [
+      must: [
         term("_index", index),
         term("status", "published")
       ]
@@ -105,7 +128,7 @@ defmodule TdSe.Search.Query do
 
   defp reduce_permission({"manage_confidential_business_concepts", domain_ids}, acc) do
     bool = either(%{"confidential.raw" => false, "domain_ids" => domain_ids})
-    {:cont, put(acc, :filter, bool)}
+    {:cont, put(acc, :must, bool)}
   end
 
   defp reduce_permission({"manage_confidential_structures", :all}, acc), do: {:cont, acc}
@@ -115,14 +138,14 @@ defmodule TdSe.Search.Query do
 
   defp reduce_permission({"manage_confidential_structures", domain_ids}, acc) do
     bool = either(%{"confidential" => false, "domain_ids" => domain_ids})
-    {:cont, put(acc, :filter, bool)}
+    {:cont, put(acc, :must, bool)}
   end
 
   defp reduce_permission({"view_data_structure", :all}, acc), do: {:cont, acc}
   defp reduce_permission({"view_data_structure", :none}, _acc), do: {:halt, @match_none}
 
   defp reduce_permission({"view_data_structure", domain_ids}, acc) do
-    {:cont, put(acc, :filter, term("domain_ids", domain_ids))}
+    {:cont, put(acc, :must, term("domain_ids", domain_ids))}
   end
 
   defp reduce_permission({"view_published_business_concepts", :all}, acc), do: {:cont, acc}
@@ -131,14 +154,14 @@ defmodule TdSe.Search.Query do
     do: {:halt, @match_none}
 
   defp reduce_permission({"view_published_business_concepts", domain_ids}, acc) do
-    {:cont, put(acc, :filter, term("domain_ids", domain_ids))}
+    {:cont, put(acc, :must, term("domain_ids", domain_ids))}
   end
 
   defp reduce_permission({"view_published_ingests", :all}, acc), do: {:cont, acc}
   defp reduce_permission({"view_published_ingests", :none}, _acc), do: {:halt, @match_none}
 
   defp reduce_permission({"view_published_ingests", domain_ids}, acc) do
-    {:cont, put(acc, :filter, term("domain_ids", domain_ids))}
+    {:cont, put(acc, :must, term("domain_ids", domain_ids))}
   end
 
   defp put(query, key, clause) do
