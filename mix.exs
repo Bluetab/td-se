@@ -10,9 +10,9 @@ defmodule TdSe.Mixfile do
           nil -> "5.10.0-local"
           v -> v
         end,
-      elixir: "~> 1.12",
+      elixir: "~> 1.16",
       elixirc_paths: elixirc_paths(Mix.env()),
-      compilers: [:phoenix] ++ Mix.compilers() ++ [:phoenix_swagger],
+      compilers: Mix.compilers(),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps(),
@@ -50,25 +50,25 @@ defmodule TdSe.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:phoenix, "~> 1.6.0"},
+      {:phoenix, "~> 1.7"},
+      {:phoenix_view, "~> 2.0"},
       {:plug_cowboy, "~> 2.1"},
       {:jason, "~> 1.0"},
       {:gettext, "~> 0.20"},
       {:httpoison, "~> 1.6"},
-      {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
+      {:bodyguard, "~> 2.4"},
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.0", only: :dev, runtime: false},
       {:guardian, "~> 2.0"},
       {:corsica, "~> 1.0"},
-      {:phoenix_swagger, git: "https://github.com/Bluetab/phx_swagger.git", tag: "6.0.0"},
       {:ex_json_schema, "~> 0.7.3"},
       {:json_diff, "~> 0.1.0"},
-      {:elasticsearch,
-       git: "https://github.com/Bluetab/elasticsearch-elixir.git",
-       branch: "feature/bulk-index-action"},
-      {:td_cache, git: "https://github.com/Bluetab/td-cache.git", tag: "4.54.0"},
-      {:ex_machina, "~> 2.4", only: :test},
+      {:td_cache, git: "https://github.com/Bluetab/td-cache.git", tag: "5.20.0"},
+      {:td_cluster,
+       git: "https://github.com/Bluetab/td-cluster.git", tag: "5.19.0", override: true},
+      {:td_core, git: "https://github.com/Bluetab/td-core.git", tag: "6.1.1"},
       {:mox, "~> 1.0", only: :test},
-      {:sobelow, "~> 0.11", only: [:dev, :test]}
+      {:sobelow, "~> 0.13", only: [:dev, :test]}
     ]
   end
 

@@ -5,10 +5,8 @@ defmodule TdSe.Application do
 
   @impl true
   def start(_type, _args) do
-    env = Application.get_env(:td_se, :env)
-
     # Define workers and child supervisors to be supervised
-    children = [TdSeWeb.Endpoint] ++ children(env)
+    children = [TdSeWeb.Endpoint]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
@@ -20,12 +18,5 @@ defmodule TdSe.Application do
   def config_change(changed, _new, removed) do
     TdSeWeb.Endpoint.config_change(changed, removed)
     :ok
-  end
-
-  defp children(:test), do: []
-
-  defp children(_env) do
-    # Elasticsearch worker
-    [TdSe.Search.Cluster]
   end
 end

@@ -7,11 +7,6 @@ defmodule TdSe.SearchTest do
 
   setup :verify_on_exit!
 
-  setup do
-    start_supervised!(TdSe.Search.Cluster)
-    :ok
-  end
-
   describe "translate/1" do
     test "returns a map of aliases to indices" do
       ElasticsearchMock
