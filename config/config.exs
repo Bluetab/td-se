@@ -12,7 +12,10 @@ config :td_se, :env, Mix.env()
 config :td_se, TdSeWeb.Endpoint,
   http: [port: 4006],
   url: [host: "localhost"],
-  render_errors: [view: TdSeWeb.ErrorView, accepts: ~w(json)]
+  render_errors: [
+    formats: [html: TdSeWeb.ErrorHTML, json: TdSeWeb.ErrorJSON],
+    layout: false
+  ]
 
 # Configures Elixir's Logger
 # set EX_LOGGER_FORMAT environment variable to override Elixir's Logger format
@@ -20,7 +23,7 @@ config :td_se, TdSeWeb.Endpoint,
 # EX_LOGGER_FORMAT='$date $time [$level] $message'
 config :logger, :console,
   format:
-    (System.get_env("EX_LOGGER_FORMAT") || "$date\T$time\Z [$level]$levelpad $metadata$message") <>
+    (System.get_env("EX_LOGGER_FORMAT") || "$date\T$time\Z [$level] $metadata$message") <>
       "\n",
   level: :info,
   metadata: [:pid, :module],
@@ -28,18 +31,15 @@ config :logger, :console,
 
 # Configuration for Phoenix
 config :phoenix, :json_library, Jason
-config :phoenix_swagger, :json_library, Jason
 
-config :td_se, TdSe.Auth.Guardian,
+config :td_core, TdCore.Auth.Guardian,
   allowed_algos: ["HS512"],
   issuer: "tdauth",
+  aud: "truedat",
   ttl: {1, :hours},
   secret_key: "SuperSecretTruedat"
 
-config :td_se, :phoenix_swagger,
-  swagger_files: %{
-    "priv/static/swagger.json" => [router: TdSeWeb.Router]
-  }
+config :bodyguard, default_error: :forbidden
 
 config :td_se, :index_aliases,
   structures: "structures",

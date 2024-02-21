@@ -15,7 +15,8 @@ defmodule TdSeWeb.ConnCase do
 
   use ExUnit.CaseTemplate
   alias Phoenix.ConnTest
-  import TdSe.Authentication, only: :functions
+
+  import TdCore.TestSupport.Authentication, only: :functions
 
   using do
     quote do
@@ -27,6 +28,8 @@ defmodule TdSeWeb.ConnCase do
 
       # The default endpoint for testing
       @endpoint TdSeWeb.Endpoint
+
+      use TdSeWeb, :verified_routes
     end
   end
 
@@ -36,9 +39,8 @@ defmodule TdSeWeb.ConnCase do
         [conn: ConnTest.build_conn()]
 
       auth_opts ->
-        auth_opts
-        |> create_claims()
-        |> create_user_auth_conn()
+        Phoenix.ConnTest.build_conn()
+        |> put_user_auth(auth_opts)
         |> assign_permissions(auth_opts[:permissions])
     end
   end

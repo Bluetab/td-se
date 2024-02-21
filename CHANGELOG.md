@@ -1,5 +1,13 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- [TD-6243]
+  - Support for deleting Elasticsearch indexes
+  - Refactor for Elixir 1.16 and use TdCore authentication
+
 ## [5.10.0] 2023-07-06
 
 ### Changed
