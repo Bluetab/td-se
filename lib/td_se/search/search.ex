@@ -5,7 +5,7 @@ defmodule TdSe.Search do
 
   require Logger
 
-  alias TdSe.Search.Cluster
+  alias TdCore.Search.Cluster
 
   def search(indices, query) when is_list(indices) do
     indices
@@ -27,7 +27,7 @@ defmodule TdSe.Search do
         %{results: results, total: get_total(total)}
 
       {:error, %Elasticsearch.Exception{message: message} = error} ->
-        Logger.warn("Error response from Elasticsearch: #{message}")
+        Logger.warning("Error response from Elasticsearch: #{message}")
         error
     end
   end
@@ -40,7 +40,7 @@ defmodule TdSe.Search do
         |> Map.take(aliases)
 
       {:error, %Elasticsearch.Exception{message: message} = error} ->
-        Logger.warn("Error response from Elasticsearch: #{message}")
+        Logger.warning("Error response from Elasticsearch: #{message}")
         error
     end
   end

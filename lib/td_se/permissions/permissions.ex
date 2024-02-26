@@ -3,7 +3,7 @@ defmodule TdSe.Permissions do
   The Permissions context.
   """
 
-  alias TdSe.Auth.Claims
+  alias TdCore.Auth.Claims
 
   def get_search_permissions(%Claims{role: role}, permissions)
       when role in ["admin", "service"] and is_list(permissions) do

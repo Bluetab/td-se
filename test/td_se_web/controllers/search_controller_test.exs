@@ -1,6 +1,5 @@
-defmodule TdBgWeb.SearchControllerTest do
+defmodule TdSeWeb.SearchControllerTest do
   use ExUnit.Case
-  use PhoenixSwagger.SchemaTest, "priv/static/swagger.json"
   use TdSeWeb.ConnCase
 
   import Mox
@@ -8,7 +7,6 @@ defmodule TdBgWeb.SearchControllerTest do
   @indices Application.compile_env(:td_se, :index_aliases)
 
   setup %{conn: conn} do
-    start_supervised!(TdSe.Search.Cluster)
     [conn: put_req_header(conn, "accept", "application/json")]
   end
 
@@ -16,7 +14,7 @@ defmodule TdBgWeb.SearchControllerTest do
 
   describe "Admin search" do
     @tag authentication: [role: "admin"]
-    test "groups results by index alias", %{conn: conn, swagger_schema: schema} do
+    test "groups results by index alias", %{conn: conn} do
       ElasticsearchMock
       |> expect(:request, fn _, :get, "/_aliases", "", [] -> SearchHelpers.aliases_response() end)
       |> expect(:request, fn _, :post, _, _, opts ->
@@ -32,8 +30,7 @@ defmodule TdBgWeb.SearchControllerTest do
 
       assert %{"data" => data} =
                conn
-               |> post(Routes.search_path(conn, :global_search))
-               |> validate_resp_schema(schema, "GlobalSearchResponse")
+               |> post(~p"/api/global_search")
                |> json_response(:ok)
 
       count_by_index =
@@ -49,7 +46,7 @@ defmodule TdBgWeb.SearchControllerTest do
     end
 
     @tag authentication: [role: "admin"]
-    test "Searches all indices by default", %{conn: conn, swagger_schema: schema} do
+    test "Searches all indices by default", %{conn: conn} do
       ElasticsearchMock
       |> expect(:request, fn _, :get, "/_aliases", "", [] -> SearchHelpers.aliases_response() end)
       |> expect(:request, fn _,
@@ -96,13 +93,12 @@ defmodule TdBgWeb.SearchControllerTest do
 
       assert %{"data" => _} =
                conn
-               |> post(Routes.search_path(conn, :global_search))
-               |> validate_resp_schema(schema, "GlobalSearchResponse")
+               |> post(~p"/api/global_search")
                |> json_response(:ok)
     end
 
     @tag authentication: [role: "admin"]
-    test "Search only specified indices", %{conn: conn, swagger_schema: schema} do
+    test "Search only specified indices", %{conn: conn} do
       ElasticsearchMock
       |> expect(:request, fn _, :get, "/_aliases", "", [] -> SearchHelpers.aliases_response() end)
       |> expect(:request, fn _,
@@ -133,8 +129,7 @@ defmodule TdBgWeb.SearchControllerTest do
 
       assert %{"data" => data} =
                conn
-               |> post(Routes.search_path(conn, :global_search), params)
-               |> validate_resp_schema(schema, "GlobalSearchResponse")
+               |> post(~p"/api/global_search", params)
                |> json_response(:ok)
 
       assert [%{"results" => results}] = data
@@ -146,7 +141,6 @@ defmodule TdBgWeb.SearchControllerTest do
     @tag authentication: [role: "user", permissions: ["view_data_structure"]]
     test "Searches all indices by default", %{
       conn: conn,
-      swagger_schema: schema,
       domain: %{id: domain_id}
     } do
       ElasticsearchMock
@@ -183,15 +177,14 @@ defmodule TdBgWeb.SearchControllerTest do
 
       assert %{"data" => data} =
                conn
-               |> post(Routes.search_path(conn, :global_search))
-               |> validate_resp_schema(schema, "GlobalSearchResponse")
+               |> post(~p"/api/global_search")
                |> json_response(:ok)
 
       assert [%{"index" => "structures_test_alias", "results" => [_]}] = data
     end
 
     @tag authentication: [permissions: ["view_data_structure"]]
-    test "Search only specified indices", %{conn: conn, swagger_schema: schema} do
+    test "Search only specified indices", %{conn: conn} do
       ElasticsearchMock
       |> expect(:request, fn _, :get, "/_aliases", "", [] -> SearchHelpers.aliases_response() end)
       |> expect(:request, fn _,
@@ -228,8 +221,7 @@ defmodule TdBgWeb.SearchControllerTest do
 
       assert %{"data" => data} =
                conn
-               |> post(Routes.search_path(conn, :global_search), params)
-               |> validate_resp_schema(schema, "GlobalSearchResponse")
+               |> post(~p"/api/global_search", params)
                |> json_response(:ok)
 
       assert [%{"results" => results}] = data

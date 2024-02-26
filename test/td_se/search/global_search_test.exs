@@ -3,6 +3,7 @@ defmodule TdSe.GlobalSearchTest do
 
   import Mox
 
+  alias TdCore.TestSupport.CacheHelpers
   alias TdSe.GlobalSearch
 
   @aliases %{
@@ -10,11 +11,6 @@ defmodule TdSe.GlobalSearchTest do
     "structures_test_alias" => "structures_test",
     "ingests_test_alias" => "ingests_test"
   }
-
-  setup do
-    start_supervised!(TdSe.Search.Cluster)
-    :ok
-  end
 
   setup :put_permissions
   setup :verify_on_exit!
@@ -244,9 +240,9 @@ defmodule TdSe.GlobalSearchTest do
   defp put_permissions(%{claims: %{user_name: "no_permissions"}}), do: :ok
 
   defp put_permissions(%{claims: %{role: "user"} = claims}) do
-    %{id: parent_id} = CacheHelpers.put_domain()
-    %{id: domain_id} = CacheHelpers.put_domain(parent_id: parent_id)
-    %{id: other_id} = CacheHelpers.put_domain()
+    %{id: parent_id} = CacheHelpers.insert_domain()
+    %{id: domain_id} = CacheHelpers.insert_domain(parent_id: parent_id)
+    %{id: other_id} = CacheHelpers.insert_domain()
 
     CacheHelpers.put_session_permissions(claims, %{
       "view_draft_business_concepts" => [parent_id],

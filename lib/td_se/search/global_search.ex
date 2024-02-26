@@ -3,7 +3,7 @@ defmodule TdSe.GlobalSearch do
   Helper module to construct business concept search queries.
   """
 
-  alias TdSe.Auth.Claims
+  alias TdCore.Auth.Claims
   alias TdSe.Permissions
   alias TdSe.Search.Aggregations
   alias TdSe.Search.Query
