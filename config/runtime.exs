@@ -3,7 +3,7 @@ import Config
 config :td_cluster, groups: [:se]
 
 if config_env() == :prod do
-  config :td_se, TdSe.Auth.Guardian, secret_key: System.fetch_env!("GUARDIAN_SECRET_KEY")
+  config :td_core, TdCore.Auth.Guardian, secret_key: System.fetch_env!("GUARDIAN_SECRET_KEY")
 
   config :td_cache,
     redis_host: System.fetch_env!("REDIS_HOST"),
