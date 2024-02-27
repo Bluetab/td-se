@@ -1,5 +1,11 @@
 # Changelog
 
+## [6.2.1] 2024-02-27
+
+### Fixed
+
+- [TD-6243] TdCore.Search.Guardian configuration
+
 ## [6.2.0] 2024-02-26
 
 ### Added
