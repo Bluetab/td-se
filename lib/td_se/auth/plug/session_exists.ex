@@ -4,7 +4,7 @@ defmodule TdSe.Auth.Plug.SessionExists do
   """
 
   alias TdCache.SessionCache
-  alias TdSe.Auth.ErrorHandler
+  alias TdCore.Auth.ErrorHandler
 
   def init(opts), do: opts
 

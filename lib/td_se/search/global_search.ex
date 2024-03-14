@@ -4,7 +4,7 @@ defmodule TdSe.GlobalSearch do
   """
 
   alias TdCore.Auth.Claims
-  alias TdSe.Permissions
+  alias TdCore.Search.Permissions
   alias TdSe.Search.Aggregations
   alias TdSe.Search.Query
 
@@ -26,7 +26,7 @@ defmodule TdSe.GlobalSearch do
   end
 
   defp get_search_permissions(claims) do
-    Permissions.get_search_permissions(claims, @search_permissions)
+    Permissions.get_search_permissions(@search_permissions, claims)
   end
 
   defp do_search(%{match_none: _}, _aliases, _page, _size) do
