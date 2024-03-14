@@ -5,8 +5,8 @@ defmodule TdSe.Auth.Pipeline.Secure do
 
   use Guardian.Plug.Pipeline,
     otp_app: :td_se,
-    error_handler: TdSe.Auth.ErrorHandler,
-    module: TdSe.Auth.Guardian
+    error_handler: TdCore.Auth.ErrorHandler,
+    module: TdCore.Auth.Guardian
 
   plug Guardian.Plug.EnsureAuthenticated, claims: %{"aud" => "truedat", "iss" => "tdauth"}
   plug Guardian.Plug.LoadResource
