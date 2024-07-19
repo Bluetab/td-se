@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+
+- [TD-6602] Update td-cache and td-core
+
 ## [6.8.0] 2024-07-18
 
 ### Added
