@@ -5,6 +5,7 @@
 ### Changed
 
 - [TD-6773] Update td-cache and td-core
+- [TD-6617] Update td-core
 
 ## [6.9.2] 2024-07-29
 
