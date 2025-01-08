@@ -42,7 +42,6 @@ defmodule TdSeWeb do
         layouts: [html: TdSeWeb.Layouts]
 
       import Plug.Conn
-      import TdSeWeb.Gettext
 
       unquote(verified_routes())
     end

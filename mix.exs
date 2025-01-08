@@ -10,11 +10,10 @@ defmodule TdSe.Mixfile do
           nil -> "6.16.0-local"
           v -> v
         end,
-      elixir: "~> 1.16",
+      elixir: "~> 1.18",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: Mix.compilers(),
       start_permanent: Mix.env() == :prod,
-      aliases: aliases(),
       deps: deps(),
       releases: [
         td_se: [
@@ -50,29 +49,16 @@ defmodule TdSe.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:phoenix, "~> 1.7"},
-      {:phoenix_view, "~> 2.0"},
-      {:plug_cowboy, "~> 2.1"},
-      {:jason, "~> 1.0"},
-      {:gettext, "~> 0.20"},
-      {:httpoison, "~> 1.6"},
-      {:bodyguard, "~> 2.4"},
-      {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
-      {:dialyxir, "~> 1.0", only: :dev, runtime: false},
-      {:guardian, "~> 2.0"},
-      {:corsica, "~> 1.0"},
-      {:ex_json_schema, "~> 0.7.3"},
-      {:json_diff, "~> 0.1.0"},
-      {:ex_machina, "~> 2.3", only: :test},
-      {:td_cache, git: "https://github.com/Bluetab/td-cache.git", tag: "6.13.0"},
-      {:td_cluster, git: "https://github.com/Bluetab/td-cluster.git", tag: "5.19.0"},
-      {:td_core, git: "https://github.com/Bluetab/td-core.git", tag: "6.13.2"},
-      {:mox, "~> 1.0", only: :test},
+      {:phoenix, "~> 1.7.18"},
+      {:plug_cowboy, "~> 2.7"},
+      {:jason, "~> 1.4.4"},
+      {:guardian, "~> 2.3.2"},
+      {:bodyguard, "~> 2.4.3"},
+      {:td_core, git: "https://github.com/Bluetab/td-core.git", tag: "7.0.0"},
+      {:credo, "~> 1.7.11", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 1.4.5", only: :dev, runtime: false},
+      {:mox, "~> 1.2", only: :test},
       {:sobelow, "~> 0.13", only: [:dev, :test]}
     ]
-  end
-
-  defp aliases do
-    []
   end
 end
