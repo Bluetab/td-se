@@ -80,7 +80,7 @@ defmodule TdSeWeb.SearchControllerTest do
                      },
                      %{
                        bool: %{
-                         must: %{term: %{"_index" => "structures_test"}},
+                         must: [%{term: %{"_index" => "structures_test"}}],
                          must_not: %{exists: %{field: "deleted_at"}}
                        }
                      }
@@ -112,7 +112,7 @@ defmodule TdSeWeb.SearchControllerTest do
 
         assert query == %{
                  bool: %{
-                   must: %{term: %{"_index" => "structures_test"}},
+                   must: [%{term: %{"_index" => "structures_test"}}],
                    must_not: %{exists: %{field: "deleted_at"}}
                  }
                }

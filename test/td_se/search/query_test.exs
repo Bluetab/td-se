@@ -46,7 +46,7 @@ defmodule TdSe.Search.QueryTest do
                    },
                    %{
                      bool: %{
-                       must: %{term: %{"_index" => "structures_idx"}},
+                       must: [%{term: %{"_index" => "structures_idx"}}],
                        must_not: %{exists: %{field: "deleted_at"}}
                      }
                    }
@@ -160,7 +160,7 @@ defmodule TdSe.Search.QueryTest do
       assert Query.build_query(%{"view_data_structure" => :all}, @indices) ==
                %{
                  bool: %{
-                   must: %{term: %{"_index" => "structures_idx"}},
+                   must: [%{term: %{"_index" => "structures_idx"}}],
                    must_not: [
                      %{term: %{"confidential" => true}},
                      %{exists: %{field: "deleted_at"}}
@@ -174,7 +174,7 @@ defmodule TdSe.Search.QueryTest do
              ) ==
                %{
                  bool: %{
-                   must: %{term: %{"_index" => "structures_idx"}},
+                   must: [%{term: %{"_index" => "structures_idx"}}],
                    must_not: %{exists: %{field: "deleted_at"}}
                  }
                }
@@ -297,14 +297,16 @@ defmodule TdSe.Search.QueryTest do
       assert %{
                bool: %{
                  must: [
-                   %{simple_query_string: %{query: "foo* bar*"}},
+                   %{
+                     multi_match: %{
+                       fields: ["ngram_name*^3"],
+                       lenient: true,
+                       type: "bool_prefix",
+                       fuzziness: "AUTO"
+                     }
+                   },
                    %{term: %{"_index" => "ingests_idx"}},
                    %{term: %{"status" => "published"}}
-                 ],
-                 should: [
-                   %{
-                     multi_match: %{operator: "and", query: "foo  bar*", type: "best_fields"}
-                   }
                  ]
                }
              } = Query.build_query(permissions, @indices, query_string)
@@ -317,8 +319,50 @@ defmodule TdSe.Search.QueryTest do
       assert %{
                bool: %{
                  minimum_should_match: 1,
-                 must: %{simple_query_string: %{query: "foo* bar*"}},
-                 should: [_, _]
+                 should: [
+                   %{
+                     bool: %{
+                       must: [
+                         %{
+                           multi_match: %{
+                             fields: ["ngram_name*^3"],
+                             lenient: true,
+                             query: "foo   bar",
+                             fuzziness: "AUTO",
+                             type: "bool_prefix"
+                           }
+                         },
+                         %{term: %{"_index" => "ingests_idx"}},
+                         %{term: %{"status" => "published"}}
+                       ]
+                     }
+                   },
+                   %{
+                     bool: %{
+                       must: [
+                         %{
+                           multi_match: %{
+                             fields: [
+                               "ngram_name*^3",
+                               "ngram_original_name*^1.5",
+                               "ngram_path*",
+                               "system.name"
+                             ],
+                             lenient: true,
+                             query: "foo   bar",
+                             fuzziness: "AUTO",
+                             type: "bool_prefix"
+                           }
+                         },
+                         %{term: %{"_index" => "structures_idx"}}
+                       ],
+                       must_not: [
+                         %{term: %{"confidential" => true}},
+                         %{exists: %{field: "deleted_at"}}
+                       ]
+                     }
+                   }
+                 ]
                }
              } = Query.build_query(permissions, @indices, query_string)
     end
