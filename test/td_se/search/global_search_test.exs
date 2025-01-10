@@ -120,45 +120,49 @@ defmodule TdSe.GlobalSearchTest do
           assert query == %{
                    bool: %{
                      minimum_should_match: 1,
-                     must: %{simple_query_string: %{query: "Foo* bar*"}},
                      should: [
                        %{
                          bool: %{
                            must: [
+                             %{
+                               multi_match: %{
+                                 fields: ["ngram_name*^3"],
+                                 lenient: true,
+                                 query: "Foo bar",
+                                 fuzziness: "AUTO",
+                                 type: "bool_prefix"
+                               }
+                             },
                              %{term: %{"domain_ids" => domain_id}},
                              %{term: %{"_index" => "concepts_test"}},
                              %{term: %{"status" => "published"}}
                            ],
-                           must_not: %{term: %{"confidential.raw" => true}},
-                           should: [
-                             %{
-                               multi_match: %{
-                                 operator: "and",
-                                 query: "Foo bar*",
-                                 type: "best_fields"
-                               }
-                             }
-                           ]
+                           must_not: %{term: %{"confidential.raw" => true}}
                          }
                        },
                        %{
                          bool: %{
                            must: [
+                             %{
+                               multi_match: %{
+                                 fields: [
+                                   "ngram_name*^3",
+                                   "ngram_original_name*^1.5",
+                                   "ngram_path*",
+                                   "system.name"
+                                 ],
+                                 lenient: true,
+                                 query: "Foo bar",
+                                 fuzziness: "AUTO",
+                                 type: "bool_prefix"
+                               }
+                             },
                              %{term: %{"domain_ids" => other_id}},
                              %{term: %{"_index" => "structures_test"}}
                            ],
                            must_not: [
                              %{term: %{"confidential" => true}},
                              %{exists: %{field: "deleted_at"}}
-                           ],
-                           should: [
-                             %{
-                               multi_match: %{
-                                 operator: "and",
-                                 query: "Foo bar*",
-                                 type: "best_fields"
-                               }
-                             }
                            ]
                          }
                        }
@@ -213,7 +217,7 @@ defmodule TdSe.GlobalSearchTest do
                        },
                        %{
                          bool: %{
-                           must: %{term: %{"_index" => "structures_test"}},
+                           must: [%{term: %{"_index" => "structures_test"}}],
                            must_not: %{exists: %{field: "deleted_at"}}
                          }
                        }
