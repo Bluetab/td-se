@@ -1,5 +1,19 @@
 # Changelog
 
+## [7.0.0] 2025-01-13
+
+### Changed
+
+- [TD-6911]
+  - update Elixir 1.18
+  - update dependencies
+  - update Docker RUNTIME_BASE=alpine:3.21
+  - remove unused dependencies
+  - remove swagger
+- [TD-5713]
+  - Search strategy for indexes that aligns with those used in their corresponding services.
+  - Limit the search scope to the native fields of each index.
+
 ## [6.16.0] 2024-12-16
 
 ### Added

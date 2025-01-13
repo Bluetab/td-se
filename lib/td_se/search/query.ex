@@ -7,6 +7,10 @@ defmodule TdSe.Search.Query do
   @concepts Application.compile_env(:td_se, :index_aliases)[:concepts]
   @ingests Application.compile_env(:td_se, :index_aliases)[:ingests]
 
+  @structure_fields ~w(ngram_name*^3 ngram_original_name*^1.5 ngram_path* system.name)
+  @concept_fields ~w(ngram_name*^3)
+  @ingest_fields ~w(ngram_name*^3)
+
   @permission_to_alias %{
     "manage_confidential_business_concepts" => @concepts,
     "manage_confidential_structures" => @structures,
@@ -27,10 +31,7 @@ defmodule TdSe.Search.Query do
 
   def build_query(permissions, indices, query_string) when is_binary(query_string) do
     query_string = String.trim(query_string)
-
-    permissions
-    |> build_group_query(indices, query_string)
-    |> put_query_string(query_string)
+    build_group_query(permissions, indices, query_string)
   end
 
   def build_group_query(permissions, indices, query) do
@@ -56,21 +57,6 @@ defmodule TdSe.Search.Query do
     end)
   end
 
-  defp put_query_string(@match_none, _), do: @match_none
-  defp put_query_string(query, ""), do: query
-
-  defp put_query_string(%{bool: bool} = query, query_string) when is_binary(query_string) do
-    must =
-      query_string
-      |> words()
-      |> Enum.map_join(" ", &maybe_add_wildcard/1)
-      |> simple_query_string()
-
-    bool = put(bool, :must, must)
-
-    %{query | bool: bool}
-  end
-
   defp permission_to_alias({permission, _}, aliases) do
     case Map.get(@permission_to_alias, permission) do
       nil -> {nil, nil}
@@ -83,31 +69,44 @@ defmodule TdSe.Search.Query do
 
     permissions
     |> Enum.reduce_while(acc, &reduce_permission/2)
-    |> add_query_should(query)
+    |> add_query_should(query, group)
     |> bool()
   end
 
-  defp add_query_should(filters, nil), do: filters
+  defp add_query_should(filters, nil, _), do: filters
 
-  defp add_query_should(%{match_none: %{}} = filters, _), do: filters
+  defp add_query_should(%{match_none: %{}} = filters, _, _), do: filters
 
-  defp add_query_should(filters, query) do
-    should = [
-      %{
-        multi_match: %{
-          query: maybe_add_wildcard(query),
-          type: "best_fields",
-          operator: "and"
-        }
+  defp add_query_should(filters, query, {@structures, _}) do
+    must = multi_match(query, @structure_fields)
+    Map.update(filters, :must, must, &[must | &1])
+  end
+
+  defp add_query_should(filters, query, {@concepts, _}) do
+    must = multi_match(query, @concept_fields)
+    Map.update(filters, :must, must, &[must | &1])
+  end
+
+  defp add_query_should(filters, query, {@ingests, _}) do
+    must = multi_match(query, @ingest_fields)
+    Map.update(filters, :must, must, &[must | &1])
+  end
+
+  defp multi_match(query, fields) do
+    %{
+      multi_match: %{
+        query: query,
+        type: "bool_prefix",
+        fields: fields,
+        lenient: true,
+        fuzziness: "AUTO"
       }
-    ]
-
-    Map.put(filters, :should, should)
+    }
   end
 
   defp acc({@structures, index}) do
     %{
-      must: term("_index", index),
+      must: [term("_index", index)],
       must_not: exists("deleted_at")
     }
   end
@@ -188,24 +187,6 @@ defmodule TdSe.Search.Query do
 
   defp bool(%{match_none: _} = clauses), do: clauses
   defp bool(%{} = clauses), do: %{bool: clauses}
-
-  defp words(query_string) do
-    Regex.split(~r/\s/, query_string, trim: true)
-  end
-
-  defp simple_query_string(query) do
-    %{simple_query_string: %{query: query}}
-  end
-
-  def maybe_add_wildcard(query) do
-    case String.last(query) do
-      nil -> query
-      "\"" -> query
-      ")" -> query
-      " " -> query
-      _ -> query <> "*"
-    end
-  end
 
   def permissions_to_aliases, do: @permission_to_alias
 end
