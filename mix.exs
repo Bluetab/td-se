@@ -7,7 +7,7 @@ defmodule TdSe.Mixfile do
       app: :td_se,
       version:
         case System.get_env("APP_VERSION") do
-          nil -> "7.0.0-local"
+          nil -> "7.2.0-local"
           v -> v
         end,
       elixir: "~> 1.18",
