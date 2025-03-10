@@ -290,7 +290,7 @@ defmodule TdSe.Search.QueryTest do
   end
 
   describe "build_query/3" do
-    test "includes simple_query_string must clause" do
+    test "includes multi_match must clause" do
       permissions = %{"view_published_ingests" => :all}
       query_string = "  foo  bar  "
 
@@ -310,6 +310,60 @@ defmodule TdSe.Search.QueryTest do
                  ]
                }
              } = Query.build_query(permissions, @indices, query_string)
+    end
+
+    test "includes simple_query_string clause" do
+      permissions = %{
+        "view_published_ingests" => :all,
+        "view_data_structure" => :all,
+        "view_published_business_concepts" => :all
+      }
+
+      query_string = "\"foo\""
+
+      assert %{
+               bool: %{
+                 should: [
+                   %{
+                     bool: %{
+                       must: [
+                         %{simple_query_string: %{fields: ["name*"], query: "\"foo\""}},
+                         %{term: %{"_index" => "concepts_idx"}},
+                         %{term: %{"status" => "published"}}
+                       ],
+                       must_not: %{term: %{"confidential.raw" => true}}
+                     }
+                   },
+                   %{
+                     bool: %{
+                       must: [
+                         %{simple_query_string: %{fields: ["name*"], query: "\"foo\""}},
+                         %{term: %{"_index" => "ingests_idx"}},
+                         %{term: %{"status" => "published"}}
+                       ]
+                     }
+                   },
+                   %{
+                     bool: %{
+                       must: [
+                         %{
+                           simple_query_string: %{
+                             fields: ["name*", "original_name*"],
+                             query: "\"foo\""
+                           }
+                         },
+                         %{term: %{"_index" => "structures_idx"}}
+                       ],
+                       must_not: [
+                         %{term: %{"confidential" => true}},
+                         %{exists: %{field: "deleted_at"}}
+                       ]
+                     }
+                   }
+                 ],
+                 minimum_should_match: 1
+               }
+             } == Query.build_query(permissions, @indices, query_string)
     end
 
     test "with multiple indices" do

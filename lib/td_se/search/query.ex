@@ -8,8 +8,11 @@ defmodule TdSe.Search.Query do
   @ingests Application.compile_env(:td_se, :index_aliases)[:ingests]
 
   @structure_fields ~w(ngram_name*^3 ngram_original_name*^1.5 ngram_path* system.name)
+  @simple_structure_fields ~w(name* original_name*)
   @concept_fields ~w(ngram_name*^3)
+  @simple_concept_fields ~w(name*)
   @ingest_fields ~w(ngram_name*^3)
+  @simple_ingest_fields ~w(name*)
 
   @permission_to_alias %{
     "manage_confidential_business_concepts" => @concepts,
@@ -20,6 +23,7 @@ defmodule TdSe.Search.Query do
   }
 
   @match_none %{match_none: %{}}
+  @accepted_wildcards ["\"", ")"]
 
   def build_query(permissions, indices) do
     build_group_query(permissions, indices, nil)
@@ -77,32 +81,46 @@ defmodule TdSe.Search.Query do
 
   defp add_query_should(%{match_none: %{}} = filters, _, _), do: filters
 
-  defp add_query_should(filters, query, {@structures, _}) do
-    must = multi_match(query, @structure_fields)
+  defp add_query_should(filters, query, {alias_name, _}) do
+    must = must(query, alias_name)
     Map.update(filters, :must, must, &[must | &1])
   end
 
-  defp add_query_should(filters, query, {@concepts, _}) do
-    must = multi_match(query, @concept_fields)
-    Map.update(filters, :must, must, &[must | &1])
+  defp must(query, alias_name) when is_binary(query) do
+    if String.last(query) in @accepted_wildcards do
+      simple_query_string(query, alias_name)
+    else
+      multi_match(query, alias_name)
+    end
   end
 
-  defp add_query_should(filters, query, {@ingests, _}) do
-    must = multi_match(query, @ingest_fields)
-    Map.update(filters, :must, must, &[must | &1])
+  defp must(query, alias_name) do
+    multi_match(query, alias_name)
   end
 
-  defp multi_match(query, fields) do
+  defp multi_match(query, alias_name) do
     %{
       multi_match: %{
         query: query,
         type: "bool_prefix",
-        fields: fields,
+        fields: multi_match_fields_for(alias_name),
         lenient: true,
         fuzziness: "AUTO"
       }
     }
   end
+
+  defp simple_query_string(query, alias_name) do
+    %{simple_query_string: %{fields: simple_query_fields_for(alias_name), query: query}}
+  end
+
+  defp multi_match_fields_for(@concepts), do: @concept_fields
+  defp multi_match_fields_for(@structures), do: @structure_fields
+  defp multi_match_fields_for(@ingests), do: @ingest_fields
+
+  defp simple_query_fields_for(@concepts), do: @simple_concept_fields
+  defp simple_query_fields_for(@structures), do: @simple_structure_fields
+  defp simple_query_fields_for(@ingests), do: @simple_ingest_fields
 
   defp acc({@structures, index}) do
     %{
