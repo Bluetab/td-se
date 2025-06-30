@@ -1,5 +1,11 @@
 # Changelog
 
+## [7.7.0] 2025-06-30
+
+### Added
+
+- [TD-7299] Refactor gitlab-ci pipeline and add Trivy check
+
 ## [7.4.0] 2025-04-09
 
 ### Changed
