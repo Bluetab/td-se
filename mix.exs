@@ -54,7 +54,7 @@ defmodule TdSe.Mixfile do
       {:jason, "~> 1.4.4"},
       {:guardian, "~> 2.3.2"},
       {:bodyguard, "~> 2.4.3"},
-      {:td_core, git: "https://github.com/Bluetab/td-core.git", tag: "7.7.1"},
+      {:td_core, git: "https://github.com/Bluetab/td-core.git", tag: "7.8.0"},
       {:credo, "~> 1.7.11", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.4.5", only: :dev, runtime: false},
       {:mox, "~> 1.2", only: :test},
