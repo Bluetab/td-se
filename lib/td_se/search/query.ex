@@ -2,17 +2,18 @@ defmodule TdSe.Search.Query do
   @moduledoc """
   Functions to construct search queries
   """
+  alias TdCore.Search.ElasticDocument
 
   @structures Application.compile_env(:td_se, :index_aliases)[:structures]
   @concepts Application.compile_env(:td_se, :index_aliases)[:concepts]
   @ingests Application.compile_env(:td_se, :index_aliases)[:ingests]
 
   @structure_fields ~w(ngram_name*^3 ngram_original_name*^1.5 ngram_path* system.name)
-  @simple_structure_fields ~w(name* original_name*)
+  @simple_structure_fields ~w(name original_name)
   @concept_fields ~w(ngram_name*^3)
-  @simple_concept_fields ~w(name*)
+  @simple_concept_fields ~w(name)
   @ingest_fields ~w(ngram_name*^3)
-  @simple_ingest_fields ~w(name*)
+  @simple_ingest_fields ~w(name)
 
   @permission_to_alias %{
     "manage_confidential_business_concepts" => @concepts,
@@ -111,14 +112,20 @@ defmodule TdSe.Search.Query do
   end
 
   defp simple_query_string(query, alias_name) do
-    %{simple_query_string: %{fields: simple_query_fields_for(alias_name), query: query}}
+    %{
+      simple_query_string: %{
+        fields: simple_query_fields_for(alias_name),
+        query: query,
+        quote_field_suffix: ".exact"
+      }
+    }
   end
 
   defp multi_match_fields_for(@concepts), do: @concept_fields
   defp multi_match_fields_for(@structures), do: @structure_fields
   defp multi_match_fields_for(@ingests), do: @ingest_fields
 
-  defp simple_query_fields_for(@concepts), do: @simple_concept_fields
+  defp simple_query_fields_for(@concepts), do: ElasticDocument.add_locales(@simple_concept_fields)
   defp simple_query_fields_for(@structures), do: @simple_structure_fields
   defp simple_query_fields_for(@ingests), do: @simple_ingest_fields
 

@@ -327,7 +327,13 @@ defmodule TdSe.Search.QueryTest do
                    %{
                      bool: %{
                        must: [
-                         %{simple_query_string: %{fields: ["name*"], query: "\"foo\""}},
+                         %{
+                           simple_query_string: %{
+                             fields: ["name"],
+                             query: "\"foo\"",
+                             quote_field_suffix: ".exact"
+                           }
+                         },
                          %{term: %{"_index" => "concepts_idx"}},
                          %{term: %{"status" => "published"}}
                        ],
@@ -337,7 +343,13 @@ defmodule TdSe.Search.QueryTest do
                    %{
                      bool: %{
                        must: [
-                         %{simple_query_string: %{fields: ["name*"], query: "\"foo\""}},
+                         %{
+                           simple_query_string: %{
+                             fields: ["name"],
+                             query: "\"foo\"",
+                             quote_field_suffix: ".exact"
+                           }
+                         },
                          %{term: %{"_index" => "ingests_idx"}},
                          %{term: %{"status" => "published"}}
                        ]
@@ -348,8 +360,9 @@ defmodule TdSe.Search.QueryTest do
                        must: [
                          %{
                            simple_query_string: %{
-                             fields: ["name*", "original_name*"],
-                             query: "\"foo\""
+                             fields: ["name", "original_name"],
+                             query: "\"foo\"",
+                             quote_field_suffix: ".exact"
                            }
                          },
                          %{term: %{"_index" => "structures_idx"}}
