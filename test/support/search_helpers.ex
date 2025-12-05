@@ -3,14 +3,13 @@ defmodule SearchHelpers do
   Helper functions for mocking search responses.
   """
 
-  @indices ["concepts", "structures", "ingests"]
+  @indices ["concepts", "structures"]
 
   def aliases_response do
     {:ok,
      %{
        "structures_test" => %{"aliases" => %{"structures_test_alias" => %{}}},
-       "concepts_test" => %{"aliases" => %{"concepts_test_alias" => %{}}},
-       "ingests_test" => %{"aliases" => %{"ingests_test_alias" => %{}}}
+       "concepts_test" => %{"aliases" => %{"concepts_test_alias" => %{}}}
      }}
   end
 

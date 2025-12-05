@@ -1,5 +1,13 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- [TD-7711]: 
+  - Phrase prefix search to highlight stricter text matches
+  - Remove ingest search
+
 ## [7.13.0] 2025-11-18
 
 ### Added

@@ -23,7 +23,6 @@ defmodule TdSeWeb.SearchControllerTest do
         SearchHelpers.hits_response([
           %{"_index" => "structures_test"},
           %{"_index" => "concepts_test"},
-          %{"_index" => "ingests_test"},
           %{"_index" => "concepts_test"}
         ])
       end)
@@ -40,7 +39,6 @@ defmodule TdSeWeb.SearchControllerTest do
 
       assert count_by_index == %{
                "concepts_test_alias" => 2,
-               "ingests_test_alias" => 1,
                "structures_test_alias" => 1
              }
     end
@@ -55,7 +53,7 @@ defmodule TdSeWeb.SearchControllerTest do
                              %{aggs: aggs, from: 0, query: query, size: 100},
                              opts ->
         assert opts == [params: %{"track_total_hits" => "true"}]
-        assert url == "/concepts_test_alias,ingests_test_alias,structures_test_alias/_search"
+        assert url == "/concepts_test_alias,structures_test_alias/_search"
         assert aggs == %{"_index" => %{terms: %{field: "_index"}}}
 
         assert query == %{
@@ -64,7 +62,7 @@ defmodule TdSeWeb.SearchControllerTest do
                    should: [
                      %{
                        bool: %{
-                         must: [
+                         filter: [
                            %{term: %{"_index" => "concepts_test"}},
                            %{term: %{"status" => "published"}}
                          ]
@@ -72,15 +70,7 @@ defmodule TdSeWeb.SearchControllerTest do
                      },
                      %{
                        bool: %{
-                         must: [
-                           %{term: %{"_index" => "ingests_test"}},
-                           %{term: %{"status" => "published"}}
-                         ]
-                       }
-                     },
-                     %{
-                       bool: %{
-                         must: [%{term: %{"_index" => "structures_test"}}],
+                         filter: [%{term: %{"_index" => "structures_test"}}],
                          must_not: %{exists: %{field: "deleted_at"}}
                        }
                      }
@@ -112,7 +102,7 @@ defmodule TdSeWeb.SearchControllerTest do
 
         assert query == %{
                  bool: %{
-                   must: [%{term: %{"_index" => "structures_test"}}],
+                   filter: [%{term: %{"_index" => "structures_test"}}],
                    must_not: %{exists: %{field: "deleted_at"}}
                  }
                }
@@ -156,7 +146,7 @@ defmodule TdSeWeb.SearchControllerTest do
 
         assert query == %{
                  bool: %{
-                   must: [
+                   filter: [
                      %{term: %{"domain_ids" => domain_id}},
                      %{term: %{"_index" => "structures_test"}}
                    ],
@@ -170,7 +160,6 @@ defmodule TdSeWeb.SearchControllerTest do
         SearchHelpers.hits_response([
           %{"_index" => "structures_test"},
           %{"_index" => "concepts_test"},
-          %{"_index" => "ingests_test"},
           %{"_index" => "concepts_test"}
         ])
       end)
@@ -198,7 +187,7 @@ defmodule TdSeWeb.SearchControllerTest do
 
         assert %{
                  bool: %{
-                   must: [
+                   filter: [
                      %{term: %{"domain_ids" => _}},
                      %{term: %{"_index" => "structures_test"}}
                    ],

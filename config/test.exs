@@ -12,8 +12,7 @@ config :phoenix, :plug_init_mode, :runtime
 
 config :td_se, :index_aliases,
   structures: "structures_test_alias",
-  concepts: "concepts_test_alias",
-  ingests: "ingests_test_alias"
+  concepts: "concepts_test_alias"
 
 config :td_core, TdCore.Search.Cluster, api: ElasticsearchMock
 

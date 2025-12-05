@@ -8,8 +8,7 @@ defmodule TdSe.GlobalSearchTest do
 
   @aliases %{
     "concepts_test_alias" => "concepts_test",
-    "structures_test_alias" => "structures_test",
-    "ingests_test_alias" => "ingests_test"
+    "structures_test_alias" => "structures_test"
   }
 
   setup :put_permissions
@@ -27,7 +26,7 @@ defmodule TdSe.GlobalSearchTest do
         :request,
         fn _, :post, url, %{aggs: aggs, from: 0, query: query, size: 100}, opts ->
           assert opts == [params: %{"track_total_hits" => "true"}]
-          assert url == "/concepts_test_alias,ingests_test_alias,structures_test_alias/_search"
+          assert url == "/concepts_test_alias,structures_test_alias/_search"
           assert aggs == %{"_index" => %{terms: %{field: "_index"}}}
 
           assert query == %{
@@ -36,7 +35,7 @@ defmodule TdSe.GlobalSearchTest do
                      should: [
                        %{
                          bool: %{
-                           must: [
+                           filter: [
                              %{term: %{"domain_ids" => domain_id}},
                              %{term: %{"_index" => "concepts_test"}},
                              %{term: %{"status" => "published"}}
@@ -46,7 +45,7 @@ defmodule TdSe.GlobalSearchTest do
                        },
                        %{
                          bool: %{
-                           must: [
+                           filter: [
                              %{term: %{"domain_ids" => other_id}},
                              %{term: %{"_index" => "structures_test"}}
                            ],
@@ -84,7 +83,7 @@ defmodule TdSe.GlobalSearchTest do
 
         assert query == %{
                  bool: %{
-                   must: [
+                   filter: [
                      %{term: %{"domain_ids" => domain_id}},
                      %{term: %{"_index" => "concepts_test"}},
                      %{term: %{"status" => "published"}}
@@ -114,7 +113,7 @@ defmodule TdSe.GlobalSearchTest do
         :request,
         fn _, :post, url, %{aggs: aggs, from: 0, query: query, size: 100}, opts ->
           assert opts == [params: %{"track_total_hits" => "true"}]
-          assert url == "/concepts_test_alias,ingests_test_alias,structures_test_alias/_search"
+          assert url == "/concepts_test_alias,structures_test_alias/_search"
           assert aggs == %{"_index" => %{terms: %{field: "_index"}}}
 
           assert query == %{
@@ -123,40 +122,83 @@ defmodule TdSe.GlobalSearchTest do
                      should: [
                        %{
                          bool: %{
-                           must: [
+                           must: %{
+                             multi_match: %{
+                               fields: ["ngram_name*^3"],
+                               lenient: true,
+                               query: "Foo bar",
+                               fuzziness: "AUTO",
+                               type: "bool_prefix"
+                             }
+                           },
+                           should: [
                              %{
                                multi_match: %{
-                                 fields: ["ngram_name*^3"],
-                                 lenient: true,
+                                 type: "phrase_prefix",
+                                 fields: ["name^3"],
                                  query: "Foo bar",
-                                 fuzziness: "AUTO",
-                                 type: "bool_prefix"
+                                 boost: 4.0,
+                                 lenient: true
                                }
                              },
+                             %{
+                               simple_query_string: %{
+                                 fields: ["name^3"],
+                                 query: "\"Foo bar\"",
+                                 boost: 4.0,
+                                 quote_field_suffix: ".exact"
+                               }
+                             }
+                           ],
+                           must_not: %{term: %{"confidential.raw" => true}},
+                           filter: [
                              %{term: %{"domain_ids" => domain_id}},
                              %{term: %{"_index" => "concepts_test"}},
                              %{term: %{"status" => "published"}}
-                           ],
-                           must_not: %{term: %{"confidential.raw" => true}}
+                           ]
                          }
                        },
                        %{
                          bool: %{
-                           must: [
+                           must: %{
+                             multi_match: %{
+                               fields: [
+                                 "ngram_name*^3",
+                                 "ngram_original_name*^3",
+                                 "ngram_path*",
+                                 "system.name"
+                               ],
+                               lenient: true,
+                               query: "Foo bar",
+                               fuzziness: "AUTO",
+                               type: "bool_prefix"
+                             }
+                           },
+                           should: [
                              %{
                                multi_match: %{
+                                 type: "phrase_prefix",
                                  fields: [
-                                   "ngram_name*^3",
-                                   "ngram_original_name*^1.5",
-                                   "ngram_path*",
+                                   "name^3",
+                                   "original_name^3",
+                                   "path_joined",
                                    "system.name"
                                  ],
-                                 lenient: true,
                                  query: "Foo bar",
-                                 fuzziness: "AUTO",
-                                 type: "bool_prefix"
+                                 boost: 4.0,
+                                 lenient: true
                                }
                              },
+                             %{
+                               simple_query_string: %{
+                                 fields: ["name^3", "original_name^3"],
+                                 query: "\"Foo bar\"",
+                                 boost: 4.0,
+                                 quote_field_suffix: ".exact"
+                               }
+                             }
+                           ],
+                           filter: [
                              %{term: %{"domain_ids" => other_id}},
                              %{term: %{"_index" => "structures_test"}}
                            ],
@@ -185,14 +227,14 @@ defmodule TdSe.GlobalSearchTest do
     end
 
     @tag authentication: [role: "admin"]
-    test "search with an admin user should fetch all results filtered by status published in ingests and concepts",
+    test "search with an admin user should fetch all results filtered by status published in concepts",
          %{claims: claims} do
       ElasticsearchMock
       |> expect(
         :request,
         fn _, :post, url, %{aggs: aggs, from: 0, query: query, size: 100}, opts ->
           assert opts == [params: %{"track_total_hits" => "true"}]
-          assert url == "/concepts_test_alias,ingests_test_alias,structures_test_alias/_search"
+          assert url == "/concepts_test_alias,structures_test_alias/_search"
           assert aggs == %{"_index" => %{terms: %{field: "_index"}}}
 
           assert query == %{
@@ -201,7 +243,7 @@ defmodule TdSe.GlobalSearchTest do
                      should: [
                        %{
                          bool: %{
-                           must: [
+                           filter: [
                              %{term: %{"_index" => "concepts_test"}},
                              %{term: %{"status" => "published"}}
                            ]
@@ -209,15 +251,7 @@ defmodule TdSe.GlobalSearchTest do
                        },
                        %{
                          bool: %{
-                           must: [
-                             %{term: %{"_index" => "ingests_test"}},
-                             %{term: %{"status" => "published"}}
-                           ]
-                         }
-                       },
-                       %{
-                         bool: %{
-                           must: [%{term: %{"_index" => "structures_test"}}],
+                           filter: [%{term: %{"_index" => "structures_test"}}],
                            must_not: %{exists: %{field: "deleted_at"}}
                          }
                        }
@@ -251,7 +285,6 @@ defmodule TdSe.GlobalSearchTest do
     CacheHelpers.put_session_permissions(claims, %{
       "view_draft_business_concepts" => [parent_id],
       "view_published_business_concepts" => [domain_id],
-      "view_draft_ingests" => [domain_id],
       "view_data_structure" => [other_id]
     })
 

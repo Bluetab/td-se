@@ -1,10 +1,13 @@
 {
     "bulk_list": [
         {
-            "index_name": "concepts_test", 
-            "id": "1", 
+            "index_name": "concepts_test",
+            "id": "1",
             "search_fields": {
-                "domain_ids": [2, 3],
+                "domain_ids": [
+                    2,
+                    3
+                ],
                 "status": "published",
                 "name": "My Concept 1",
                 "description": "My Desc",
@@ -16,7 +19,9 @@
             "index_name": "concepts_test",
             "id": "2",
             "search_fields": {
-                "domain_ids": [2],
+                "domain_ids": [
+                    2
+                ],
                 "status": "deprecated",
                 "name": "My Concept 2",
                 "description": "My Desc",
@@ -28,7 +33,9 @@
             "index_name": "concepts_test",
             "id": "3",
             "search_fields": {
-                "domain_ids": [2],
+                "domain_ids": [
+                    2
+                ],
                 "status": "draft",
                 "name": "My Concept 3",
                 "description": "My Desc",
@@ -40,7 +47,10 @@
             "index_name": "concepts_test",
             "id": "4",
             "search_fields": {
-                "domain_ids": [1, 2],
+                "domain_ids": [
+                    1,
+                    2
+                ],
                 "status": "published",
                 "name": "My Concept 4",
                 "description": "My Desc",
@@ -52,7 +62,9 @@
             "index_name": "structures_test",
             "id": "5",
             "search_fields": {
-                "domain_ids": [1],
+                "domain_ids": [
+                    1
+                ],
                 "name": "My Structure 1",
                 "description": "My Desc",
                 "id": 5,
@@ -63,7 +75,10 @@
             "index_name": "structures_test",
             "id": "6",
             "search_fields": {
-                "domain_ids": [4, 5],
+                "domain_ids": [
+                    4,
+                    5
+                ],
                 "name": "My Structure 2",
                 "description": "My Desc",
                 "id": 6,
@@ -74,45 +89,43 @@
             "index_name": "structures_test",
             "id": "7",
             "search_fields": {
-                "domain_ids": [1, 2],
+                "domain_ids": [
+                    1,
+                    2
+                ],
                 "name": "My Structure 3",
                 "description": "My Desc",
                 "id": 7,
                 "confidential": false
-            }           
+            }
         },
         {
             "index_name": "structures_test",
             "id": "8",
             "search_fields": {
-                "domain_ids": [1, 2],
+                "domain_ids": [
+                    1,
+                    2
+                ],
                 "name": "My Structure 4",
                 "description": "My Desc",
                 "id": 8,
                 "confidential": true
-            }           
+            }
         },
         {
             "index_name": "structures_test",
             "id": "9",
             "search_fields": {
-                "domain_ids": [1, 2],
+                "domain_ids": [
+                    1,
+                    2
+                ],
                 "name": "My Structure 5",
                 "description": "My Desc",
                 "id": 9,
                 "confidential": true,
                 "deleted_at": "Today"
-            }           
-        },
-        {
-            "index_name": "ingests_test", 
-            "id": "9", 
-            "search_fields": {
-                "domain_ids": [2, 3],
-                "status": "draft",
-                "description": "My Desc",
-                "name": "My Ingest 1",
-                "id": 9
             }
         }
     ]
