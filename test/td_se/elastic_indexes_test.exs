@@ -15,7 +15,6 @@ defmodule TdSe.ElasticIndexesTest do
           key: "implementations-1707153260425924",
           size: 15_277_855
         },
-        %{alias: "ingests", documents: 112, key: "ingests-1707154843653946", size: 102_923},
         %{alias: "rules", documents: 254, key: "rules-1707154839278682", size: 285_352}
       ]
 
@@ -23,11 +22,6 @@ defmodule TdSe.ElasticIndexesTest do
       |> expect(:request, fn _, :get, "_alias", "", [] ->
         {:ok,
          %{
-           "ingests-1707154843653946" => %{
-             "aliases" => %{
-               "ingests" => %{}
-             }
-           },
            "implementations-1707153260425924" => %{
              "aliases" => %{
                "implementations" => %{}
@@ -88,29 +82,6 @@ defmodule TdSe.ElasticIndexesTest do
                  },
                  "store" => %{
                    "size_in_bytes" => 15_277_855,
-                   "reserved_in_bytes" => 0
-                 }
-               }
-             },
-             "ingests-1707154843653946" => %{
-               "uuid" => "1bggVKvgRD6JuR-ETD-bAw",
-               "primaries" => %{
-                 "docs" => %{
-                   "count" => 112,
-                   "deleted" => 0
-                 },
-                 "store" => %{
-                   "size_in_bytes" => 102_923,
-                   "reserved_in_bytes" => 0
-                 }
-               },
-               "total" => %{
-                 "docs" => %{
-                   "count" => 112,
-                   "deleted" => 0
-                 },
-                 "store" => %{
-                   "size_in_bytes" => 102_923,
                    "reserved_in_bytes" => 0
                  }
                }

@@ -46,22 +46,5 @@
                 }
             }
         }
-    },
-    "ingests_test": {
-        "mappings": {
-            "doc": {
-                "properties": {
-                    "domain_ids": {
-                        "type": "long"
-                    },
-                    "id": {
-                        "type": "long"
-                    },
-                    "name": {
-                        "type": "text"
-                    }
-                }
-            }
-        }
     }
 }
