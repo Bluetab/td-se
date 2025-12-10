@@ -43,8 +43,7 @@ config :bodyguard, default_error: :forbidden
 
 config :td_se, :index_aliases,
   structures: "structures",
-  concepts: "concepts",
-  ingests: "ingests"
+  concepts: "concepts"
 
 config :td_cache, redis_host: "redis"
 

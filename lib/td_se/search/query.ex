@@ -2,25 +2,24 @@ defmodule TdSe.Search.Query do
   @moduledoc """
   Functions to construct search queries
   """
+
   alias TdCore.Search.ElasticDocument
 
   @structures Application.compile_env(:td_se, :index_aliases)[:structures]
   @concepts Application.compile_env(:td_se, :index_aliases)[:concepts]
-  @ingests Application.compile_env(:td_se, :index_aliases)[:ingests]
 
-  @structure_fields ~w(ngram_name*^3 ngram_original_name*^1.5 ngram_path* system.name)
-  @simple_structure_fields ~w(name original_name)
+  @structure_fields ~w(ngram_name*^3 ngram_original_name*^3 ngram_path* system.name)
+  @simple_structure_fields ~w(name^3 original_name^3 path_joined system.name)
   @concept_fields ~w(ngram_name*^3)
   @simple_concept_fields ~w(name)
-  @ingest_fields ~w(ngram_name*^3)
-  @simple_ingest_fields ~w(name)
+  @exact_concept_fields ~w(name)
+  @exact_structure_fields ~w(name original_name)
 
   @permission_to_alias %{
     "manage_confidential_business_concepts" => @concepts,
     "manage_confidential_structures" => @structures,
     "view_data_structure" => @structures,
-    "view_published_business_concepts" => @concepts,
-    "view_published_ingests" => @ingests
+    "view_published_business_concepts" => @concepts
   }
 
   @match_none %{match_none: %{}}
@@ -83,23 +82,16 @@ defmodule TdSe.Search.Query do
   defp add_query_should(%{match_none: %{}} = filters, _, _), do: filters
 
   defp add_query_should(filters, query, {alias_name, _}) do
-    must = must(query, alias_name)
-    Map.update(filters, :must, must, &[must | &1])
-  end
-
-  defp must(query, alias_name) when is_binary(query) do
     if String.last(query) in @accepted_wildcards do
-      simple_query_string(query, alias_name)
+      Map.put(filters, :must, simple(query, alias_name))
     else
-      multi_match(query, alias_name)
+      filters
+      |> Map.put(:must, must(query, alias_name))
+      |> Map.put(:should, should(query, alias_name))
     end
   end
 
   defp must(query, alias_name) do
-    multi_match(query, alias_name)
-  end
-
-  defp multi_match(query, alias_name) do
     %{
       multi_match: %{
         query: query,
@@ -111,7 +103,29 @@ defmodule TdSe.Search.Query do
     }
   end
 
-  defp simple_query_string(query, alias_name) do
+  defp should(query, alias_name) do
+    [
+      %{
+        multi_match: %{
+          type: "phrase_prefix",
+          fields: simple_query_fields_for(alias_name),
+          query: query,
+          boost: 4.0,
+          lenient: true
+        }
+      },
+      %{
+        simple_query_string: %{
+          fields: exact_query_fields_for(alias_name),
+          query: "\"#{query}\"",
+          boost: 4.0,
+          quote_field_suffix: ".exact"
+        }
+      }
+    ]
+  end
+
+  defp simple(query, alias_name) do
     %{
       simple_query_string: %{
         fields: simple_query_fields_for(alias_name),
@@ -123,22 +137,27 @@ defmodule TdSe.Search.Query do
 
   defp multi_match_fields_for(@concepts), do: @concept_fields
   defp multi_match_fields_for(@structures), do: @structure_fields
-  defp multi_match_fields_for(@ingests), do: @ingest_fields
 
-  defp simple_query_fields_for(@concepts), do: ElasticDocument.add_locales(@simple_concept_fields)
+  defp simple_query_fields_for(@concepts),
+    do: @simple_concept_fields |> ElasticDocument.add_locales() |> boost()
+
   defp simple_query_fields_for(@structures), do: @simple_structure_fields
-  defp simple_query_fields_for(@ingests), do: @simple_ingest_fields
+
+  defp exact_query_fields_for(@concepts),
+    do: @exact_concept_fields |> ElasticDocument.add_locales() |> boost()
+
+  defp exact_query_fields_for(@structures), do: boost(@exact_structure_fields)
 
   defp acc({@structures, index}) do
     %{
-      must: [term("_index", index)],
+      filter: [term("_index", index)],
       must_not: exists("deleted_at")
     }
   end
 
   defp acc({_, index}) do
     %{
-      must: [
+      filter: [
         term("_index", index),
         term("status", "published")
       ]
@@ -152,7 +171,7 @@ defmodule TdSe.Search.Query do
 
   defp reduce_permission({"manage_confidential_business_concepts", domain_ids}, acc) do
     bool = either(%{"confidential.raw" => false, "domain_ids" => domain_ids})
-    {:cont, put(acc, :must, bool)}
+    {:cont, put(acc, :filter, bool)}
   end
 
   defp reduce_permission({"manage_confidential_structures", :all}, acc), do: {:cont, acc}
@@ -162,14 +181,14 @@ defmodule TdSe.Search.Query do
 
   defp reduce_permission({"manage_confidential_structures", domain_ids}, acc) do
     bool = either(%{"confidential" => false, "domain_ids" => domain_ids})
-    {:cont, put(acc, :must, bool)}
+    {:cont, put(acc, :filter, bool)}
   end
 
   defp reduce_permission({"view_data_structure", :all}, acc), do: {:cont, acc}
   defp reduce_permission({"view_data_structure", :none}, _acc), do: {:halt, @match_none}
 
   defp reduce_permission({"view_data_structure", domain_ids}, acc) do
-    {:cont, put(acc, :must, term("domain_ids", domain_ids))}
+    {:cont, put(acc, :filter, term("domain_ids", domain_ids))}
   end
 
   defp reduce_permission({"view_published_business_concepts", :all}, acc), do: {:cont, acc}
@@ -178,14 +197,7 @@ defmodule TdSe.Search.Query do
     do: {:halt, @match_none}
 
   defp reduce_permission({"view_published_business_concepts", domain_ids}, acc) do
-    {:cont, put(acc, :must, term("domain_ids", domain_ids))}
-  end
-
-  defp reduce_permission({"view_published_ingests", :all}, acc), do: {:cont, acc}
-  defp reduce_permission({"view_published_ingests", :none}, _acc), do: {:halt, @match_none}
-
-  defp reduce_permission({"view_published_ingests", domain_ids}, acc) do
-    {:cont, put(acc, :must, term("domain_ids", domain_ids))}
+    {:cont, put(acc, :filter, term("domain_ids", domain_ids))}
   end
 
   defp put(query, key, clause) do
@@ -212,6 +224,10 @@ defmodule TdSe.Search.Query do
 
   defp bool(%{match_none: _} = clauses), do: clauses
   defp bool(%{} = clauses), do: %{bool: clauses}
+
+  defp boost(fields) do
+    Enum.map(fields, fn field -> "#{field}^3" end)
+  end
 
   def permissions_to_aliases, do: @permission_to_alias
 end

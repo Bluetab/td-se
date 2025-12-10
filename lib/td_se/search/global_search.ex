@@ -12,8 +12,7 @@ defmodule TdSe.GlobalSearch do
     "manage_confidential_business_concepts",
     "manage_confidential_structures",
     "view_data_structure",
-    "view_published_business_concepts",
-    "view_published_ingests"
+    "view_published_business_concepts"
   ]
 
   def search(params, claims, aliases, page \\ 0, size \\ 50)

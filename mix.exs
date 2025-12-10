@@ -7,7 +7,7 @@ defmodule TdSe.Mixfile do
       app: :td_se,
       version:
         case System.get_env("APP_VERSION") do
-          nil -> "7.13.0-local"
+          nil -> "7.14.0-local"
           v -> v
         end,
       elixir: "~> 1.18",
@@ -54,7 +54,7 @@ defmodule TdSe.Mixfile do
       {:jason, "~> 1.4.4"},
       {:guardian, "~> 2.3.2"},
       {:bodyguard, "~> 2.4.3"},
-      {:td_core, git: "https://github.com/Bluetab/td-core.git", tag: "7.8.0"},
+      {:td_core, git: "https://github.com/Bluetab/td-core.git", tag: "7.14.3"},
       {:credo, "~> 1.7.11", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.4.5", only: :dev, runtime: false},
       {:mox, "~> 1.2", only: :test},

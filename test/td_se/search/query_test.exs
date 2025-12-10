@@ -5,12 +5,10 @@ defmodule TdSe.Search.QueryTest do
 
   @structures Application.compile_env(:td_se, :index_aliases)[:structures]
   @concepts Application.compile_env(:td_se, :index_aliases)[:concepts]
-  @ingests Application.compile_env(:td_se, :index_aliases)[:ingests]
 
   @indices %{
     @concepts => "concepts_idx",
-    @structures => "structures_idx",
-    @ingests => "ingests_idx"
+    @structures => "structures_idx"
   }
 
   describe "build_query/2" do
@@ -20,8 +18,7 @@ defmodule TdSe.Search.QueryTest do
                  "manage_confidential_business_concepts" => :all,
                  "manage_confidential_structures" => :all,
                  "view_data_structure" => :all,
-                 "view_published_business_concepts" => :all,
-                 "view_published_ingests" => :all
+                 "view_published_business_concepts" => :all
                },
                @indices
              ) == %{
@@ -30,7 +27,7 @@ defmodule TdSe.Search.QueryTest do
                  should: [
                    %{
                      bool: %{
-                       must: [
+                       filter: [
                          %{term: %{"_index" => "concepts_idx"}},
                          %{term: %{"status" => "published"}}
                        ]
@@ -38,15 +35,7 @@ defmodule TdSe.Search.QueryTest do
                    },
                    %{
                      bool: %{
-                       must: [
-                         %{term: %{"_index" => "ingests_idx"}},
-                         %{term: %{"status" => "published"}}
-                       ]
-                     }
-                   },
-                   %{
-                     bool: %{
-                       must: [%{term: %{"_index" => "structures_idx"}}],
+                       filter: [%{term: %{"_index" => "structures_idx"}}],
                        must_not: %{exists: %{field: "deleted_at"}}
                      }
                    }
@@ -61,8 +50,7 @@ defmodule TdSe.Search.QueryTest do
                  "manage_confidential_business_concepts" => :none,
                  "manage_confidential_structures" => :none,
                  "view_data_structure" => :none,
-                 "view_published_business_concepts" => :none,
-                 "view_published_ingests" => :none
+                 "view_published_business_concepts" => :none
                },
                @indices
              ) == %{match_none: %{}}
@@ -77,7 +65,7 @@ defmodule TdSe.Search.QueryTest do
       assert Query.build_query(%{"view_published_business_concepts" => :all}, @indices) ==
                %{
                  bool: %{
-                   must: [
+                   filter: [
                      %{term: %{"_index" => "concepts_idx"}},
                      %{term: %{"status" => "published"}}
                    ],
@@ -94,7 +82,7 @@ defmodule TdSe.Search.QueryTest do
              ) ==
                %{
                  bool: %{
-                   must: [
+                   filter: [
                      %{term: %{"_index" => "concepts_idx"}},
                      %{term: %{"status" => "published"}}
                    ]
@@ -103,7 +91,7 @@ defmodule TdSe.Search.QueryTest do
 
       assert Query.build_query(%{"view_published_business_concepts" => [1]}, @indices) == %{
                bool: %{
-                 must: [
+                 filter: [
                    %{term: %{"domain_ids" => 1}},
                    %{term: %{"_index" => "concepts_idx"}},
                    %{term: %{"status" => "published"}}
@@ -120,7 +108,7 @@ defmodule TdSe.Search.QueryTest do
                @indices
              ) == %{
                bool: %{
-                 must: [
+                 filter: [
                    %{term: %{"domain_ids" => 1}},
                    %{term: %{"_index" => "concepts_idx"}},
                    %{term: %{"status" => "published"}}
@@ -136,7 +124,7 @@ defmodule TdSe.Search.QueryTest do
                @indices
              ) == %{
                bool: %{
-                 must: [
+                 filter: [
                    %{term: %{"domain_ids" => 1}},
                    %{
                      bool: %{
@@ -160,7 +148,7 @@ defmodule TdSe.Search.QueryTest do
       assert Query.build_query(%{"view_data_structure" => :all}, @indices) ==
                %{
                  bool: %{
-                   must: [%{term: %{"_index" => "structures_idx"}}],
+                   filter: [%{term: %{"_index" => "structures_idx"}}],
                    must_not: [
                      %{term: %{"confidential" => true}},
                      %{exists: %{field: "deleted_at"}}
@@ -174,14 +162,14 @@ defmodule TdSe.Search.QueryTest do
              ) ==
                %{
                  bool: %{
-                   must: [%{term: %{"_index" => "structures_idx"}}],
+                   filter: [%{term: %{"_index" => "structures_idx"}}],
                    must_not: %{exists: %{field: "deleted_at"}}
                  }
                }
 
       assert Query.build_query(%{"view_data_structure" => [1]}, @indices) == %{
                bool: %{
-                 must: [%{term: %{"domain_ids" => 1}}, %{term: %{"_index" => "structures_idx"}}],
+                 filter: [%{term: %{"domain_ids" => 1}}, %{term: %{"_index" => "structures_idx"}}],
                  must_not: [%{term: %{"confidential" => true}}, %{exists: %{field: "deleted_at"}}]
                }
              }
@@ -191,7 +179,7 @@ defmodule TdSe.Search.QueryTest do
                @indices
              ) == %{
                bool: %{
-                 must: [%{term: %{"domain_ids" => 1}}, %{term: %{"_index" => "structures_idx"}}],
+                 filter: [%{term: %{"domain_ids" => 1}}, %{term: %{"_index" => "structures_idx"}}],
                  must_not: %{exists: %{field: "deleted_at"}}
                }
              }
@@ -201,7 +189,7 @@ defmodule TdSe.Search.QueryTest do
                @indices
              ) == %{
                bool: %{
-                 must: [
+                 filter: [
                    %{term: %{"domain_ids" => 1}},
                    %{
                      bool: %{
@@ -218,32 +206,6 @@ defmodule TdSe.Search.QueryTest do
              }
     end
 
-    test "ingests permissions" do
-      assert Query.build_query(%{"view_published_ingests" => :none}, @indices) ==
-               %{match_none: %{}}
-
-      assert Query.build_query(%{"view_published_ingests" => :all}, @indices) ==
-               %{
-                 bool: %{
-                   must: [
-                     %{term: %{"_index" => "ingests_idx"}},
-                     %{term: %{"status" => "published"}}
-                   ]
-                 }
-               }
-
-      assert Query.build_query(%{"view_published_ingests" => [1]}, @indices) ==
-               %{
-                 bool: %{
-                   must: [
-                     %{term: %{"domain_ids" => 1}},
-                     %{term: %{"_index" => "ingests_idx"}},
-                     %{term: %{"status" => "published"}}
-                   ]
-                 }
-               }
-    end
-
     test "mixed permissions" do
       assert %{bool: %{should: should, minimum_should_match: 1}} =
                Query.build_query(
@@ -251,8 +213,7 @@ defmodule TdSe.Search.QueryTest do
                    "manage_confidential_business_concepts" => :none,
                    "manage_confidential_structures" => [1, 2],
                    "view_data_structure" => :all,
-                   "view_published_business_concepts" => [3],
-                   "view_published_ingests" => :none
+                   "view_published_business_concepts" => [3]
                  },
                  @indices
                )
@@ -261,7 +222,7 @@ defmodule TdSe.Search.QueryTest do
 
       assert concept_clause == %{
                bool: %{
-                 must: [
+                 filter: [
                    %{term: %{"domain_ids" => 3}},
                    %{term: %{"_index" => "concepts_idx"}},
                    %{term: %{"status" => "published"}}
@@ -272,7 +233,7 @@ defmodule TdSe.Search.QueryTest do
 
       assert structure_clause == %{
                bool: %{
-                 must: [
+                 filter: [
                    %{
                      bool: %{
                        should: [
@@ -291,30 +252,50 @@ defmodule TdSe.Search.QueryTest do
 
   describe "build_query/3" do
     test "includes multi_match must clause" do
-      permissions = %{"view_published_ingests" => :all}
+      permissions = %{"view_published_business_concepts" => :all}
       query_string = "  foo  bar  "
 
-      assert %{
+      assert Query.build_query(permissions, @indices, query_string) == %{
                bool: %{
-                 must: [
+                 must: %{
+                   multi_match: %{
+                     fields: ["ngram_name*^3"],
+                     lenient: true,
+                     type: "bool_prefix",
+                     fuzziness: "AUTO",
+                     query: String.trim(query_string)
+                   }
+                 },
+                 should: [
                    %{
                      multi_match: %{
-                       fields: ["ngram_name*^3"],
-                       lenient: true,
-                       type: "bool_prefix",
-                       fuzziness: "AUTO"
+                       fields: ["name^3"],
+                       type: "phrase_prefix",
+                       query: String.trim(query_string),
+                       boost: 4.0,
+                       lenient: true
                      }
                    },
-                   %{term: %{"_index" => "ingests_idx"}},
+                   %{
+                     simple_query_string: %{
+                       fields: ["name^3"],
+                       query: "\"#{String.trim(query_string)}\"",
+                       boost: 4.0,
+                       quote_field_suffix: ".exact"
+                     }
+                   }
+                 ],
+                 must_not: %{term: %{"confidential.raw" => true}},
+                 filter: [
+                   %{term: %{"_index" => "concepts_idx"}},
                    %{term: %{"status" => "published"}}
                  ]
                }
-             } = Query.build_query(permissions, @indices, query_string)
+             }
     end
 
     test "includes simple_query_string clause" do
       permissions = %{
-        "view_published_ingests" => :all,
         "view_data_structure" => :all,
         "view_published_business_concepts" => :all
       }
@@ -326,14 +307,14 @@ defmodule TdSe.Search.QueryTest do
                  should: [
                    %{
                      bool: %{
-                       must: [
-                         %{
-                           simple_query_string: %{
-                             fields: ["name"],
-                             query: "\"foo\"",
-                             quote_field_suffix: ".exact"
-                           }
-                         },
+                       must: %{
+                         simple_query_string: %{
+                           fields: ["name^3"],
+                           query: "\"foo\"",
+                           quote_field_suffix: ".exact"
+                         }
+                       },
+                       filter: [
                          %{term: %{"_index" => "concepts_idx"}},
                          %{term: %{"status" => "published"}}
                        ],
@@ -342,31 +323,14 @@ defmodule TdSe.Search.QueryTest do
                    },
                    %{
                      bool: %{
-                       must: [
-                         %{
-                           simple_query_string: %{
-                             fields: ["name"],
-                             query: "\"foo\"",
-                             quote_field_suffix: ".exact"
-                           }
-                         },
-                         %{term: %{"_index" => "ingests_idx"}},
-                         %{term: %{"status" => "published"}}
-                       ]
-                     }
-                   },
-                   %{
-                     bool: %{
-                       must: [
-                         %{
-                           simple_query_string: %{
-                             fields: ["name", "original_name"],
-                             query: "\"foo\"",
-                             quote_field_suffix: ".exact"
-                           }
-                         },
-                         %{term: %{"_index" => "structures_idx"}}
-                       ],
+                       must: %{
+                         simple_query_string: %{
+                           fields: ["name^3", "original_name^3", "path_joined", "system.name"],
+                           query: "\"foo\"",
+                           quote_field_suffix: ".exact"
+                         }
+                       },
+                       filter: [%{term: %{"_index" => "structures_idx"}}],
                        must_not: [
                          %{term: %{"confidential" => true}},
                          %{exists: %{field: "deleted_at"}}
@@ -380,49 +344,86 @@ defmodule TdSe.Search.QueryTest do
     end
 
     test "with multiple indices" do
-      permissions = %{"view_published_ingests" => :all, "view_data_structure" => :all}
+      permissions = %{"view_published_business_concepts" => :all, "view_data_structure" => :all}
       query_string = "  foo   bar "
 
-      assert %{
+      assert Query.build_query(permissions, @indices, query_string) == %{
                bool: %{
                  minimum_should_match: 1,
                  should: [
                    %{
                      bool: %{
-                       must: [
+                       must: %{
+                         multi_match: %{
+                           fields: ["ngram_name*^3"],
+                           lenient: true,
+                           query: "foo   bar",
+                           fuzziness: "AUTO",
+                           type: "bool_prefix"
+                         }
+                       },
+                       should: [
                          %{
                            multi_match: %{
-                             fields: ["ngram_name*^3"],
-                             lenient: true,
+                             fields: ["name^3"],
+                             type: "phrase_prefix",
                              query: "foo   bar",
-                             fuzziness: "AUTO",
-                             type: "bool_prefix"
+                             boost: 4.0,
+                             lenient: true
                            }
                          },
-                         %{term: %{"_index" => "ingests_idx"}},
+                         %{
+                           simple_query_string: %{
+                             fields: ["name^3"],
+                             query: "\"foo   bar\"",
+                             boost: 4.0,
+                             quote_field_suffix: ".exact"
+                           }
+                         }
+                       ],
+                       must_not: %{term: %{"confidential.raw" => true}},
+                       filter: [
+                         %{term: %{"_index" => "concepts_idx"}},
                          %{term: %{"status" => "published"}}
                        ]
                      }
                    },
                    %{
                      bool: %{
-                       must: [
+                       must: %{
+                         multi_match: %{
+                           fields: [
+                             "ngram_name*^3",
+                             "ngram_original_name*^3",
+                             "ngram_path*",
+                             "system.name"
+                           ],
+                           lenient: true,
+                           query: "foo   bar",
+                           fuzziness: "AUTO",
+                           type: "bool_prefix"
+                         }
+                       },
+                       should: [
                          %{
                            multi_match: %{
-                             fields: [
-                               "ngram_name*^3",
-                               "ngram_original_name*^1.5",
-                               "ngram_path*",
-                               "system.name"
-                             ],
-                             lenient: true,
+                             fields: ["name^3", "original_name^3", "path_joined", "system.name"],
+                             type: "phrase_prefix",
                              query: "foo   bar",
-                             fuzziness: "AUTO",
-                             type: "bool_prefix"
+                             boost: 4.0,
+                             lenient: true
                            }
                          },
-                         %{term: %{"_index" => "structures_idx"}}
+                         %{
+                           simple_query_string: %{
+                             fields: ["name^3", "original_name^3"],
+                             query: "\"foo   bar\"",
+                             boost: 4.0,
+                             quote_field_suffix: ".exact"
+                           }
+                         }
                        ],
+                       filter: [%{term: %{"_index" => "structures_idx"}}],
                        must_not: [
                          %{term: %{"confidential" => true}},
                          %{exists: %{field: "deleted_at"}}
@@ -431,7 +432,7 @@ defmodule TdSe.Search.QueryTest do
                    }
                  ]
                }
-             } = Query.build_query(permissions, @indices, query_string)
+             }
     end
   end
 end
