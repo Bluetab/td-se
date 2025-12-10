@@ -4,7 +4,7 @@
 
 ### Added
 
-- [TD-7711]: 
+- [TD-7711]:
   - Phrase prefix search to highlight stricter text matches
   - Remove ingest search
 
